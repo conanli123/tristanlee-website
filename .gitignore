@@ -2,6 +2,7 @@ node_modules/
 dist/
 *.local
 .vite/
+.wrangler/
 *.log
 *.tsbuildinfo
 .DS_Store
