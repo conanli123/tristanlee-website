@@ -1,0 +1,28 @@
+11:23:23 [vite] (client) Re-optimizing dependencies because lockfile has changed
+
+  VITE v7.3.6  ready in 470 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+  ➜  press h + enter to show help
+11:49:15 [vite] (client) hmr update /src/App.tsx, /src/index.css
+11:49:15 [vite] (client) page reload index.html
+11:49:23 [vite] (client) hmr update /src/App.tsx, /src/index.css
+11:51:26 [vite] (client) page reload src/App.tsx
+11:52:31 [vite] (client) page reload src/App.tsx
+11:52:31 [vite] (client) hmr update /src/index.css
+11:53:48 [vite] (client) hmr update /src/App.tsx, /src/index.css
+11:54:01 [vite] (client) hmr update /src/index.css
+11:54:21 [vite] (client) page reload README.md
+11:59:39 [vite] (client) hmr update /src/index.css
+12:22:15 [vite] (client) hmr update /src/App.tsx, /src/index.css
+12:22:15 [vite] (client) hmr update /src/App.tsx, /src/index.css
+12:22:15 [vite] (client) hmr update /src/index.css
+12:24:15 [vite] (client) hmr update /src/App.tsx, /src/index.css
+12:26:03 [vite] (client) hmr update /src/App.tsx, /src/index.css
+12:26:47 [vite] (client) page reload src/hooks/useVideoScrub.ts
+12:27:41 [vite] (client) hmr update /src/App.tsx, /src/index.css
+12:27:41 [vite] (client) hmr update /src/index.css
+12:53:21 [vite] (client) hmr update /src/App.tsx, /src/index.css
+12:53:34 [vite] (client) hmr update /src/index.css
+12:53:35 [vite] (client) hmr update /src/index.css
+12:53:37 [vite] (client) hmr update /src/index.css
