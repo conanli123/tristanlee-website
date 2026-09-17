@@ -5,6 +5,7 @@ import type { Work } from "./data/site";
 import { assetUrl } from "./data/assetUrl";
 import { useReducedMotion } from "./hooks/useTypewriter";
 import { useProfileMotion } from "./hooks/useProfileMotion";
+import { useCarouselDrag } from "./hooks/useCarouselDrag";
 import FlowerScene from "./components/FlowerScene";
 
 function Icon({
@@ -239,15 +240,13 @@ function Portrait({ className = "" }: { className?: string }) {
   );
 }
 function Hero() {
-  const featured = works.slice(0, 5);
+  const featured = works.slice(0, 8);
   const [active, setActive] = useState(0);
   const [userPaused, setUserPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focusWithin, setFocusWithin] = useState(false);
-  const paused = userPaused || hovered || focusWithin;
   const slideLinks = useRef<(HTMLAnchorElement | null)[]>([]);
   const reduced = useReducedMotion();
-  const touch = useRef<number | null>(null);
   const move = (direction: number) => {
     const next = (active + direction + featured.length) % featured.length;
     const keepFocus = slideLinks.current.includes(
@@ -259,6 +258,8 @@ function Hero() {
         slideLinks.current[next]?.focus({ preventScroll: true }),
       );
   };
+  const drag = useCarouselDrag(move);
+  const paused = userPaused || hovered || focusWithin || drag.isPressed;
   useEffect(() => {
     if (paused || reduced) return;
     const id = window.setInterval(
@@ -286,17 +287,9 @@ function Hero() {
       }}
     >
       <div
-        className="hero-slides"
-        onTouchStart={(e) => {
-          touch.current = e.touches[0].clientX;
-        }}
-        onTouchEnd={(e) => {
-          if (touch.current !== null) {
-            const delta = touch.current - e.changedTouches[0].clientX;
-            if (Math.abs(delta) > 40) move(delta > 0 ? 1 : -1);
-            touch.current = null;
-          }
-        }}
+        ref={drag.trackRef}
+        className={`hero-slides ${drag.isDragging ? "is-dragging" : ""}`}
+        {...drag.handlers}
       >
         {featured.map((work, index) => {
           let offset = (index - active + featured.length) % featured.length;
@@ -313,6 +306,7 @@ function Hero() {
               style={{ "--offset": offset } as CSSProperties}
               tabIndex={offset === 0 ? 0 : -1}
               aria-hidden={offset !== 0}
+              draggable={false}
             >
               <img
                 src={assetUrl(work.image)}
@@ -343,16 +337,26 @@ function Hero() {
         </button>
         <div className="hero-caption" aria-live="off">
           <span>{featured[active].title}</span>
-          <span className="hero-dots">
-            {featured.map((work, index) => (
-              <button
-                key={work.id}
-                aria-label={`切换至${work.title}`}
-                aria-pressed={active === index}
-                className={active === index ? "active" : ""}
-                onClick={() => setActive(index)}
-              />
-            ))}
+          <span className="hero-pagination">
+            <span className="hero-dots">
+              {featured.map((work, index) => (
+                <button
+                  key={work.id}
+                  aria-label={`切换至${work.title}`}
+                  aria-pressed={active === index}
+                  className={active === index ? "active" : ""}
+                  onClick={() => setActive(index)}
+                />
+              ))}
+            </span>
+            <button
+              className="autoplay-toggle"
+              aria-label={userPaused ? "播放轮播" : "暂停轮播"}
+              aria-pressed={userPaused}
+              onClick={() => setUserPaused((value) => !value)}
+            >
+              {userPaused ? "▷" : "Ⅱ"}
+            </button>
           </span>
         </div>
         <button
@@ -364,14 +368,6 @@ function Hero() {
           <Icon name="arrow" />
         </button>
       </div>
-      <button
-        className="autoplay-toggle"
-        aria-label={userPaused ? "播放轮播" : "暂停轮播"}
-        aria-pressed={userPaused}
-        onClick={() => setUserPaused((value) => !value)}
-      >
-        {userPaused ? "▷" : "Ⅱ"}
-      </button>
     </section>
   );
 }

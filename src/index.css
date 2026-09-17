@@ -236,6 +236,9 @@ main:focus {
   height: var(--slide-size);
   position: relative;
   touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .hero-slide {
   position: absolute;
@@ -247,13 +250,28 @@ main:focus {
   border-radius: 22px;
   overflow: hidden;
   background: #eee;
-  transform: translateX(calc(-50% + var(--offset) * 112%)) scale(0.79);
+  transform: translateX(calc(-50% + var(--offset) * 112% + var(--drag-x, 0px)))
+    scale(0.79);
   transition: transform 1s var(--ease);
   will-change: transform;
+  cursor: inherit;
 }
 .hero-slide.is-active {
   z-index: 2;
-  transform: translateX(calc(-50% + var(--offset) * 112%)) scale(1);
+  transform: translateX(calc(-50% + var(--offset) * 112% + var(--drag-x, 0px)))
+    scale(1);
+}
+.hero-slides.is-dragging {
+  cursor: grabbing;
+}
+.hero-slides.is-dragging .hero-slide {
+  transition: none;
+}
+.hero-slides.is-dragging .hero-hover {
+  opacity: 0;
+}
+.hero-slides.is-dragging .hero-slide img {
+  scale: 1;
 }
 .hero-slide img {
   height: 100%;
@@ -351,6 +369,11 @@ main:focus {
   display: flex;
   gap: 7px;
 }
+.hero-pagination {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
 .hero-dots button {
   width: 21px;
   height: 22px;
@@ -374,8 +397,8 @@ main:focus {
 }
 .autoplay-toggle {
   position: absolute;
-  bottom: 23px;
-  left: calc(50% + 89px);
+  left: calc(100% + 12px);
+  top: 0;
   font-size: 12px;
   line-height: 22px;
   min-width: 22px;
@@ -1812,9 +1835,6 @@ main:focus {
     font-size: 16px;
     gap: 14px;
   }
-  .autoplay-toggle {
-    bottom: 37px;
-  }
   .section {
     padding-top: 80px;
     padding-bottom: 85px;
@@ -1994,8 +2014,14 @@ main:focus {
     width: 25px;
     height: 25px;
   }
+  .hero-dots {
+    gap: 4px;
+  }
+  .hero-dots button {
+    width: 16px;
+  }
   .autoplay-toggle {
-    bottom: 28px;
+    left: calc(100% + 6px);
   }
   .section {
     padding-top: 60px;
