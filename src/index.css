@@ -465,14 +465,20 @@ main:focus {
 }
 .work-filters {
   display: grid;
-  grid-template-columns: repeat(4, max-content);
+  grid-template-columns: repeat(5, max-content);
   gap: 10px 30px;
   margin-bottom: 18px;
   justify-content: start;
   justify-items: start;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  padding: 6px 6px 10px;
+  margin-left: -6px;
+  margin-right: -6px;
 }
-.work-filters .art-filter {
-  grid-column: 1 / -1;
+.work-filters button:focus-visible {
+  outline-offset: 2px;
 }
 .work-filters button {
   font-weight: 700;
@@ -2043,7 +2049,6 @@ main:focus {
     letter-spacing: 0.045em;
   }
   .work-filters {
-    grid-template-columns: repeat(2, max-content);
     gap: 8px 24px;
     margin-bottom: 15px;
   }

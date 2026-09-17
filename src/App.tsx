@@ -6,6 +6,7 @@ import { assetUrl } from "./data/assetUrl";
 import { useReducedMotion } from "./hooks/useTypewriter";
 import { useProfileMotion } from "./hooks/useProfileMotion";
 import { useCarouselDrag } from "./hooks/useCarouselDrag";
+import { useCarouselHover } from "./hooks/useCarouselHover";
 import FlowerScene from "./components/FlowerScene";
 
 function Icon({
@@ -247,8 +248,7 @@ function Hero() {
   const [focusWithin, setFocusWithin] = useState(false);
   const slideLinks = useRef<(HTMLAnchorElement | null)[]>([]);
   const reduced = useReducedMotion();
-  const move = (direction: number) => {
-    const next = (active + direction + featured.length) % featured.length;
+  const selectSlide = (next: number) => {
     const keepFocus = slideLinks.current.includes(
       document.activeElement as HTMLAnchorElement,
     );
@@ -258,7 +258,10 @@ function Hero() {
         slideLinks.current[next]?.focus({ preventScroll: true }),
       );
   };
+  const move = (direction: number) =>
+    selectSlide((active + direction + featured.length) % featured.length);
   const drag = useCarouselDrag(move);
+  const hover = useCarouselHover(active, selectSlide, drag.isPressed, reduced);
   const paused = userPaused || hovered || focusWithin || drag.isPressed;
   useEffect(() => {
     if (paused || reduced) return;
@@ -289,6 +292,7 @@ function Hero() {
       <div
         ref={drag.trackRef}
         className={`hero-slides ${drag.isDragging ? "is-dragging" : ""}`}
+        onPointerDownCapture={hover.cancel}
         {...drag.handlers}
       >
         {featured.map((work, index) => {
@@ -307,6 +311,8 @@ function Hero() {
               tabIndex={offset === 0 ? 0 : -1}
               aria-hidden={offset !== 0}
               draggable={false}
+              onPointerMove={(event) => hover.onPointerMove(event, index)}
+              onPointerLeave={hover.cancel}
             >
               <img
                 src={assetUrl(work.image)}
@@ -345,7 +351,7 @@ function Hero() {
                   aria-label={`切换至${work.title}`}
                   aria-pressed={active === index}
                   className={active === index ? "active" : ""}
-                  onClick={() => setActive(index)}
+                  onClick={() => selectSlide(index)}
                 />
               ))}
             </span>
@@ -490,7 +496,7 @@ function Works({
           {categories.map((item) => (
             <button
               key={item.id}
-              className={`${category === item.id ? "active" : ""} ${item.id === "illustration" ? "art-filter" : ""}`}
+              className={category === item.id ? "active" : ""}
               aria-pressed={category === item.id}
               onClick={() => setCategory(item.id)}
               title={item.zh}
