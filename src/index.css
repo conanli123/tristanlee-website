@@ -252,7 +252,7 @@ main:focus {
   background: #eee;
   transform: translateX(calc(-50% + var(--offset) * 112% + var(--drag-x, 0px)))
     scale(0.79);
-  transition: transform 1s var(--ease);
+  transition: transform 0.32s var(--ease);
   will-change: transform;
   cursor: inherit;
 }

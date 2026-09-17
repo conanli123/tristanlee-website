@@ -24,7 +24,7 @@ export function useCarouselHover(
     if (lastActive.current !== active) {
       // Moving cards can pass beneath a stationary pointer; only a fresh mouse
       // movement after the transition should select another project.
-      lockedUntil.current = performance.now() + (reducedMotion ? 0 : 1050);
+      lockedUntil.current = performance.now() + (reducedMotion ? 0 : 350);
       lastActive.current = active;
     }
   }, [active, disabled, reducedMotion, cancel]);
@@ -64,7 +64,7 @@ export function useCarouselHover(
     timer.current = setTimeout(() => {
       cancel();
       if (link.matches(":hover") && !document.hidden) select(index);
-    }, 220);
+    }, 50);
   };
 
   return { onPointerMove, cancel };
