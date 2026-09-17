@@ -1,32 +1,29 @@
-# 李天纯 TristanLee · 渲染合成师个人主页
+# 李天纯 TristanLee
 
-基于 React、TypeScript、Vite 和 Tailwind CSS 的响应式作品网站。页面分为首页、图片作品、小剧场、游戏 Demo、领域展开和联系方式。
+React、TypeScript、Vite 作品网站，包含首页、图片作品、小剧场、游戏 Demo、自我介绍和联系方式。
 
-## 本地运行
+## 本地预览
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
-默认地址为 http://127.0.0.1:5173/ 。生产构建使用 `npm run build`，结果输出到 `dist/`。
+打开 http://127.0.0.1:5173/ 。`npm run build` 生成标准 Vite 产物；`npm run build:single` 生成包含当前图片、视频、样式和交互的 `single-file/index.html`，可直接在浏览器打开。
 
-## 替换内容
+## 发布
 
-- `src/data/site.ts`：中文名、英文名、职业、邮箱、首屏介绍和图片作品数据。
-- `src/App.tsx`：导航、影片卡片、游戏 Demo、领域介绍与联系方式。
-- `public/art/`：图片作品和视频封面占位图。
-- `public/media/character.mp4`：首页背景及小剧场临时视频。
-- `src/index.css`：所有视觉样式和响应式规则。
+GitHub `main` 分支推送后，Cloudflare Pages 自动运行 `npm run build:single`，发布 `single-file` 目录到 https://tristanleelgt.pages.dev/ 。
 
-图片作品目前使用《鸣潮》《艾尔登法环》《凯娜：精神之桥》的官方 Steam 商店截图，页面中已标明为临时参考素材，非李天纯个人作品。小剧场暂时复用首页短片作为结构占位。替换原创素材后，应同步修改项目名称、介绍、来源说明和无障碍替代文字。
+手动发布 Pages 使用 `npm run deploy:pages`；更新 Workers 备用站点使用 `npm run deploy`。参阅 [部署指南](README-DEPLOY.md)。
 
-联系方式为 `294080551@qq.com`，只显示在联系方式区。首页没有邮箱入口。
+## 更换内容
 
-## 已实现功能
+- `src/data/site.ts`：姓名、职业、邮箱、介绍和图片作品数据。
+- `src/App.tsx`：页面区块、视频卡片和游戏 Demo。
+- `src/index.css`：样式和响应式规则。
+- `public/art/`：图片与视频封面。
+- `public/media/character.mp4`：首页交互视频及小剧场占位视频。
+- `src/data/assetUrl.ts`：统一的素材地址解析，用于本地预览和单文件发布。
 
-- 鼠标左右移动或滑块控制首页视频帧。
-- 图片作品分类筛选与详情弹窗。
-- 三个带原生播放控件的小剧场视频位置。
-- 可直接游玩的 15 秒“光点捕捉”Demo，以及两个小游戏原型位置。
-- 响应式导航、手机菜单、邮箱复制反馈、减少动态效果支持。
+当前作品图是明确标注的风格参考，非个人作品。小剧场暂时复用首页短片。替换原创素材时也需更新名称、说明与素材来源。

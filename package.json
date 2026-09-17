@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
+    "build:single": "node scripts/build-single.mjs",
     "preview": "vite preview --host 127.0.0.1",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build:single && wrangler deploy",
+    "deploy:pages": "npm run build:single && wrangler pages deploy --config wrangler.pages.jsonc --project-name tristanleelgt --branch main"
   },
   "dependencies": {
     "react": "^19.1.1",

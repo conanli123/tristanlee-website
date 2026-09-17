@@ -1,69 +1,56 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import { projects, site } from './data/site'
-import { useReducedMotion, useTypewriter } from './hooks/useTypewriter'
+import { mediaTiles, newsItems, site, skillTags, works } from './data/site'
+import type { Work } from './data/site'
+import { assetUrl } from './data/assetUrl'
+import { useReducedMotion } from './hooks/useTypewriter'
 import { useVideoScrub } from './hooks/useVideoScrub'
 
-function Arrow({ diagonal = false }: { diagonal?: boolean }) {
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className={diagonal ? 'arrow-diagonal' : ''}><path d="M4 12h15M13 5l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-}
+/* ---------- 图标 ---------- */
 
-function CopyIcon({ copied = false }: { copied?: boolean }) {
-  return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">{copied ? <path d="m5 12 4 4L19 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /> : <><rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" /><path d="M15 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3" stroke="currentColor" strokeWidth="1.5" /></>}</svg>
+function Arrow({ className = '' }: { className?: string }) {
+  return <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="square" /></svg>
 }
-
+function ArrowLeft({ className = '' }: { className?: string }) {
+  return <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="square" /></svg>
+}
 function Asterisk({ className = '' }: { className?: string }) {
-  return <svg className={className} width="32" height="32" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M20 2v36M2 20h36M7.3 7.3l25.4 25.4M7.3 32.7 32.7 7.3" stroke="currentColor" strokeWidth="4.5" /></svg>
+  return <svg className={className} width="26" height="26" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M20 2v36M2 20h36M7.3 7.3l25.4 25.4M7.3 32.7 32.7 7.3" stroke="currentColor" strokeWidth="5" strokeLinecap="square" /></svg>
 }
+function CopyIcon({ copied = false }: { copied?: boolean }) {
+  return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">{copied ? <path d="m5 12 4 4L19 6" stroke="currentColor" strokeWidth="2" strokeLinecap="square" /> : <><rect x="8" y="8" width="12" height="12" stroke="currentColor" strokeWidth="2" /><path d="M15 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3" stroke="currentColor" strokeWidth="2" /></>}</svg>
+}
+
+/* ---------- 品牌与导航 ---------- */
 
 function Brand({ compact = false }: { compact?: boolean }) {
-  return <span className={`brand-lockup ${compact ? 'compact' : ''}`}><span className="brand-names"><b>{site.chineseName}</b><span>{site.name}</span></span><Asterisk /></span>
+  return (
+    <span className={`brand ${compact ? 'is-compact' : ''}`}>
+      <span className="brand-en">{site.titleEn}</span>
+      <span className="brand-name"><b>TRISTANLEE</b><i>{site.chineseName}</i></span>
+    </span>
+  )
 }
 
 const navItems = [
-  { label: '首页', id: 'home' },
-  { label: '作品', id: 'work' },
-  { label: '小剧场', id: 'theater' },
-  { label: '游戏demo', id: 'demos' },
-  { label: '领域展开', id: 'about' },
+  { id: 'work', label: 'WORK', zh: '作品' },
+  { id: 'profile', label: 'PROFILE', zh: '关于' },
+  { id: 'news', label: 'NEWS', zh: '动态' },
+  { id: 'contact', label: 'CONTACT', zh: '联系' },
 ]
 
-const theaterItems = [
-  { number: '01', title: '角色印象短片', subtitle: 'CHARACTER STUDY', poster: 'art/kena.jpg', note: '角色灯光 / 表情 / 质感' },
-  { number: '02', title: '氛围与空间', subtitle: 'LIGHT & SPACE', poster: 'art/elden-ring.jpg', note: '环境照明 / 空间雾 / 调色' },
-  { number: '03', title: '风格化镜头', subtitle: 'STYLIZED FRAME', poster: 'art/wuthering-waves.jpg', note: '风格探索 / 合成 / 镜头节奏' },
-]
+/* ---------- 首屏轮播 ---------- */
 
-type Panel = { id: string } | null
+const slides = works.filter(work => work.kind !== 'game')
 
-function DetailDialog({ panel, onClose }: { panel: Panel; onClose: () => void }) {
-  const ref = useRef<HTMLDialogElement>(null)
-  const project = panel ? projects.find(item => item.id === panel.id) : null
-  useEffect(() => {
-    const dialog = ref.current
-    if (!dialog) return
-    if (panel && !dialog.open) dialog.showModal()
-    if (!panel && dialog.open) dialog.close()
-  }, [panel])
-  return <dialog ref={ref} className="detail-dialog" aria-labelledby="detail-title" onCancel={onClose} onClose={onClose} onClick={event => { if (event.target === event.currentTarget) onClose() }}>
-    <div className="dialog-inner">
-      <button type="button" className="dialog-close" onClick={onClose} aria-label="关闭详情"><span /><span /></button>
-      {project && <><img className="dialog-image" src={`${import.meta.env.BASE_URL}${project.image}`} alt={`${project.subtitle}视觉参考`} /><div className="dialog-copy"><p className="eyebrow muted">IMAGE WORK / {project.number} <span>临时参考素材 · 非个人作品</span></p><h2 id="detail-title">{project.subtitle}</h2><p className="dialog-subtitle">{project.name}</p><div className="tag-list">{project.tags.map(tag => <span key={tag}>{tag}</span>)}</div>{project.details.map(paragraph => <p key={paragraph}>{paragraph}</p>)}<p className="image-credit">{project.credit}</p>{project.url && <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-link">查看素材来源 <Arrow diagonal /></a>}</div></>}
-    </div>
-  </dialog>
+function HeroSlide({ work, active }: { work: Work; active: boolean }) {
+  if (work.kind === 'video') {
+    return <div className="slide" aria-hidden={!active}><video src={assetUrl(site.video)} poster={assetUrl(work.image)} muted loop playsInline autoPlay={active} /></div>
+  }
+  return <div className="slide" aria-hidden={!active}><img src={assetUrl(work.image)} alt="" loading={active ? 'eager' : 'lazy'} draggable={false} /></div>
 }
 
-function Reveal({ children, className = '' }: { children: ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
-    const observer = new IntersectionObserver(entries => { if (entries[0].isIntersecting) { element.classList.add('is-visible'); observer.disconnect() } }, { threshold: 0.08 })
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [])
-  return <div ref={ref} className={`reveal ${className}`}>{children}</div>
-}
+/* ---------- 游戏原型（可玩） ---------- */
 
 function LightCatchGame() {
   const [state, setState] = useState<'idle' | 'playing' | 'done'>('idle')
@@ -80,36 +67,113 @@ function LightCatchGame() {
     }), 1000)
     return () => window.clearInterval(timer)
   }, [state])
-  return <div className="playable-demo">
-    <div className="demo-hud"><span>SCORE <b>{String(score).padStart(2, '0')}</b></span><span>TIME <b>{String(time).padStart(2, '0')}</b></span></div>
-    <div className="demo-stage" aria-label="光点捕捉小游戏区域">
-      <div className="demo-grid" aria-hidden="true" />
-      {state === 'playing' && <button type="button" className="light-target" style={{ left: `${target.x}%`, top: `${target.y}%` }} aria-label="捕捉光点" onClick={() => { setScore(value => value + 1); move() }}><span /></button>}
-      {state !== 'playing' && <div className="demo-intro"><Asterisk /><h3>{state === 'done' ? `捕捉到 ${score} 个光点` : '光点捕捉'}</h3><p>{state === 'done' ? '再来一次，试试打破自己的记录。' : '15 秒内，点击尽可能多的移动光点。'}</p><button type="button" onClick={start}>{state === 'done' ? '重新开始' : '开始游戏'} <Arrow /></button></div>}
+  return <div className="game-box">
+    <div className="game-hud"><span>SCORE <b>{String(score).padStart(2, '0')}</b></span><span>TIME <b>{String(time).padStart(2, '0')}</b></span></div>
+    <div className="game-stage">
+      <div className="game-grid" aria-hidden="true" />
+      {state === 'playing' && <button type="button" className="light-target" style={{ left: `${target.x}%`, top: `${target.y}%` }} aria-label="捕捉光点" onClick={() => { setScore(v => v + 1); move() }}><span /></button>}
+      {state !== 'playing' && <div className="game-intro"><Asterisk /><h4>{state === 'done' ? `捕捉到 ${score} 个光点` : '光点捕捉'}</h4><p>{state === 'done' ? '再来一次，试试打破自己的记录。' : '15 秒内，点击尽可能多的移动光点。'}</p><button type="button" onClick={start}>{state === 'done' ? '重新开始' : '开始游戏'} <Arrow /></button></div>}
     </div>
   </div>
 }
 
+/* ---------- 作品详情弹窗 ---------- */
+
+type Panel = { id: string } | null
+
+function DetailDialog({ panel, onClose }: { panel: Panel; onClose: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null)
+  const work = panel ? works.find(item => item.id === panel.id) : null
+  useEffect(() => {
+    const dialog = ref.current
+    if (!dialog) return
+    if (panel && !dialog.open) dialog.showModal()
+    if (!panel && dialog.open) dialog.close()
+  }, [panel])
+  return <dialog ref={ref} className="detail-dialog" aria-labelledby="detail-title" onCancel={onClose} onClose={onClose} onClick={event => { if (event.target === event.currentTarget) onClose() }}>
+    <button type="button" className="dialog-close" onClick={onClose} aria-label="关闭详情"><span /><span /></button>
+    {work && <div className="dialog-inner">
+      <div className="dialog-media">
+        {work.kind === 'video'
+          ? <video src={assetUrl(site.video)} poster={assetUrl(work.image)} controls muted playsInline>你的浏览器不支持视频播放。</video>
+          : <img src={assetUrl(work.image)} alt={`${work.title} ${work.titleEn}`} />}
+        <span className="dialog-tag">{work.category} ｜ {work.year}</span>
+      </div>
+      <div className="dialog-copy">
+        <p className="dialog-en">{work.titleEn}</p>
+        <h2 id="detail-title">{work.title}</h2>
+        <p className="dialog-desc">{work.description}</p>
+        {work.kind === 'game' && work.id === 'light-catch' && <LightCatchGame />}
+        {work.details.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
+        {work.credit && <p className="dialog-credit">{work.credit}</p>}
+        <a className="dialog-mail" href={`mailto:${site.email}`}>合作 / 讨论此作品 <Arrow /></a>
+      </div>
+    </div>}
+  </dialog>
+}
+
+/* ---------- 滚动显现 ---------- */
+
+function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+    const observer = new IntersectionObserver(entries => { if (entries[0].isIntersecting) { element.classList.add('is-visible'); observer.disconnect() } }, { threshold: 0.08 })
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+  return <div ref={ref} className={`reveal ${className}`} style={delay ? { transitionDelay: `${delay}ms` } : undefined}>{children}</div>
+}
+
+/* ---------- 主组件 ---------- */
+
 export default function App() {
   const reducedMotion = useReducedMotion()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [panel, setPanel] = useState<Panel>(null)
+  const [slide, setSlide] = useState(0)
+  const [heroPaused, setHeroPaused] = useState(false)
   const [filter, setFilter] = useState('全部')
-  const [activeSection, setActiveSection] = useState('home')
+  const [panel, setPanel] = useState<Panel>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState('work')
   const [copied, setCopied] = useState(false)
   const [toast, setToast] = useState('')
-  const [buttonsReady, setButtonsReady] = useState(false)
   const menuRef = useRef<HTMLDialogElement>(null)
   const copyTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const { displayed, done } = useTypewriter(site.introduction, 38, 600, reducedMotion)
   const { videoRef, ready, failed, progress, seekTo } = useVideoScrub(reducedMotion, menuOpen || Boolean(panel))
 
-  useEffect(() => { const timer = setTimeout(() => setButtonsReady(true), 400); return () => { clearTimeout(timer); clearTimeout(copyTimer.current) } }, [])
+  const goSlide = useCallback((next: number) => {
+    setSlide((next + slides.length) % slides.length)
+  }, [])
+
+  // 自动轮播
+  useEffect(() => {
+    if (reducedMotion || heroPaused) return
+    const timer = window.setTimeout(() => setSlide(v => (v + 1) % slides.length), 6000)
+    return () => window.clearTimeout(timer)
+  }, [slide, heroPaused, reducedMotion])
+
+  // 键盘左右切换
+  useEffect(() => {
+    if (reducedMotion) return
+    const onKey = (event: KeyboardEvent) => {
+      if (menuOpen || panel) return
+      if (event.key === 'ArrowRight') goSlide(slide + 1)
+      if (event.key === 'ArrowLeft') goSlide(slide - 1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [goSlide, slide, menuOpen, panel, reducedMotion])
+
+  // 高亮当前区块
   useEffect(() => {
     const sections = document.querySelectorAll('main > section[id]')
-    const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) setActiveSection(entry.target.id) }), { rootMargin: '-20% 0px -60% 0px' })
-    sections.forEach(section => observer.observe(section)); return () => observer.disconnect()
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) setActiveSection(entry.target.id) }), { rootMargin: '-30% 0px -55% 0px' })
+    sections.forEach(section => observer.observe(section))
+    return () => observer.disconnect()
   }, [])
+
+  // 弹窗 / 菜单时锁滚动
   useEffect(() => { document.body.style.overflow = menuOpen || panel ? 'hidden' : ''; return () => { document.body.style.overflow = '' } }, [menuOpen, panel])
   useEffect(() => {
     const dialog = menuRef.current
@@ -117,7 +181,8 @@ export default function App() {
     if (!menuOpen && dialog?.open) dialog.close()
     const query = window.matchMedia('(min-width: 1181px)')
     const handleResize = () => { if (query.matches) setMenuOpen(false) }
-    query.addEventListener('change', handleResize); return () => query.removeEventListener('change', handleResize)
+    query.addEventListener('change', handleResize)
+    return () => query.removeEventListener('change', handleResize)
   }, [menuOpen])
 
   async function copyEmail() {
@@ -127,45 +192,203 @@ export default function App() {
     copyTimer.current = setTimeout(() => { setCopied(false); setToast('') }, 3500)
   }
 
-  const visibleProjects = projects.filter(project => filter === '全部' || project.category === filter)
-  const onLight = ['work', 'theater', 'about'].includes(activeSection)
+  const filterGroups: Record<string, string> = { '图片作品': 'image', '动态影像': 'motion', '游戏原型': 'game' }
+  const visibleWorks = filter === '全部' ? works : works.filter(work => work.group === filterGroups[filter])
+  const counts: Record<string, number> = {
+    '全部': works.length,
+    '图片作品': works.filter(work => work.group === 'image').length,
+    '动态影像': works.filter(work => work.group === 'motion').length,
+    '游戏原型': works.filter(work => work.group === 'game').length,
+  }
+  const activeWork = slides[slide]
 
   return <>
     <a className="skip-link" href="#work">跳到作品展示</a>
-    <div className="hero-background" aria-hidden="true"><div className="background-fallback"><Asterisk className="fallback-star" /></div><video ref={videoRef} className={`hero-video ${ready ? 'is-ready' : ''}`} src={site.video} muted playsInline preload="auto" disablePictureInPicture tabIndex={-1} /><div className="video-shade" /><div className="grain" /></div>
 
-    <header className={`site-header ${onLight ? 'on-light' : ''} ${activeSection !== 'home' ? 'is-scrolled' : ''}`}>
-      {activeSection !== 'contact' && <a className="logo brand-logo" href="#home" aria-label={`${site.chineseName} ${site.name}，返回首页`}><Brand /></a>}
-      <nav className="desktop-nav portfolio-nav" aria-label="主导航">{navItems.map(item => <a key={item.id} className={activeSection === item.id ? 'active' : ''} href={`#${item.id}`}>{item.label}</a>)}</nav>
-      <a className="nav-contact" href="#contact">一起创造点什么 <Arrow diagonal /></a>
+    {/* 顶栏 */}
+    <header className={`site-header ${menuOpen ? 'is-open' : ''}`}>
+      <a className="logo" href="#home" aria-label={`${site.chineseName} ${site.name}，返回首页`}><Brand /></a>
+      <p className="header-tagline">{site.title} · 专注光影、材质、色彩与最终画面</p>
+      <nav className="desktop-nav" aria-label="主导航">{navItems.map(item => <a key={item.id} className={activeSection === item.id ? 'active' : ''} href={`#${item.id}`}><b>{item.label}</b><i>{item.zh}</i></a>)}</nav>
       <button type="button" className={`menu-toggle ${menuOpen ? 'is-open' : ''}`} aria-label="打开导航菜单" aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen(true)}><span /><span /><span /></button>
     </header>
 
-    <dialog ref={menuRef} id="mobile-menu" className="mobile-menu" aria-label="导航菜单" onCancel={() => setMenuOpen(false)} onClose={() => setMenuOpen(false)}><div className="mobile-menu-top"><a className="logo" href="#home" onClick={() => setMenuOpen(false)}><Brand compact /></a><button type="button" className="menu-toggle is-open" aria-label="关闭导航菜单" onClick={() => setMenuOpen(false)}><span /><span /><span /></button></div><nav aria-label="手机主导航">{[...navItems, { label: '联系方式', id: 'contact' }].map((item, index) => <a key={item.id} href={`#${item.id}`} onClick={() => setMenuOpen(false)}><span className="menu-number">0{index + 1}</span>{item.label}<Arrow diagonal /></a>)}</nav><p className="menu-footer">RENDERING · COMPOSITING · MOTION</p></dialog>
+    {/* 手机菜单 */}
+    <dialog ref={menuRef} id="mobile-menu" className="mobile-menu" aria-label="导航菜单" onCancel={() => setMenuOpen(false)} onClose={() => setMenuOpen(false)}>
+      <div className="mobile-menu-top"><a className="logo" href="#home" onClick={() => setMenuOpen(false)}><Brand compact /></a><button type="button" className="menu-toggle is-open" aria-label="关闭导航菜单" onClick={() => setMenuOpen(false)}><span /><span /><span /></button></div>
+      <nav aria-label="手机主导航">{navItems.map((item, index) => <a key={item.id} href={`#${item.id}`} onClick={() => setMenuOpen(false)}><span className="menu-number">0{index + 1}</span>{item.label}<i>{item.zh}</i><Arrow /></a>)}</nav>
+      <p className="menu-footer">{site.titleEn} — {site.title}</p>
+    </dialog>
 
     <main>
-      <section className="hero" id="home" aria-labelledby="hero-heading">
-        <div className="hero-content">
-          <div className="hero-eyebrow"><span className="status-dot" /> RENDERING & COMPOSITING ARTIST <span className="eyebrow-line" /></div>
-          <div className="blurred-intro" aria-hidden="true">渲染合成师<br />专注光影、材质、色彩与最终画面。</div>
-          <h1 id="hero-heading">让每一帧，<br />都拥有<span className="playable-word">自己的情绪<svg viewBox="0 0 390 18" preserveAspectRatio="none" aria-hidden="true"><path d="M3 12C100 3 253 3 382 7M67 16C182 9 300 9 375 12" /></svg></span><span className="title-period">。</span></h1>
-          <p className="typewriter" aria-label={site.introduction}><span aria-hidden="true">{displayed}{!done && <span className="typing-cursor" />}</span></p>
-          <div className={`hero-actions ${buttonsReady ? 'is-visible' : ''}`}><a href="#work" className="pill pill-primary">查看作品</a><a href="#theater" className="pill">进入小剧场</a><a href="#demos" className="pill">试玩游戏 demo</a><a href="#about" className="pill">领域展开</a></div>
+      {/* 首屏 */}
+      <section className="hero" id="home" aria-label="首屏展示">
+        <div className="hero-decor" aria-hidden="true">
+          <Asterisk className="spin-slow star-a" />
+          <span className="circle-b" />
+          <span className="line-h line-h1" />
+          <span className="line-h line-h2" />
         </div>
-        <div className="character-label" aria-hidden="true"><span className="tiny-cross">+</span><span>LIGHT. COLOR.<br />FINAL FRAME.</span><span className="character-index">( 01 / ∞ )</span></div>
-        <div className="hero-footer"><a className="scroll-link" href="#work"><span className="scroll-circle">↓</span><span>往下探索<small>SCROLL TO DISCOVER</small></span></a><div className="scrub-control"><span className="scrub-icon" aria-hidden="true">↔</span><label htmlFor="video-scrub">{failed ? '静态画面 · 同样值得探索' : reducedMotion ? '拖动滑块，探索角色' : '移动鼠标，看看另一帧'}</label><input id="video-scrub" aria-label="调整背景视频画面" type="range" min="0" max="100" value={Math.round(progress * 100)} disabled={failed || !ready} onChange={event => seekTo.current(Number(event.target.value) / 100)} style={{ '--progress': `${progress * 100}%` } as CSSProperties} /></div><span className="hero-signature">CRAFTING THE FINAL FRAME <Asterisk /></span></div>
+
+        <div className="hero-intro">
+          <p className="eyebrow"><span className="dot" /> {site.titleEn} <i>{site.title}</i></p>
+          <h1>让每一帧，<br />都拥有自己的<span className="hl">情绪。</span></h1>
+          <p className="hero-copy">{site.heroIntro}</p>
+          <p className="hero-copy-en">{site.heroIntroEn}</p>
+        </div>
+
+        <div
+          className="hero-stage"
+          onMouseEnter={() => setHeroPaused(true)}
+          onMouseLeave={() => setHeroPaused(false)}
+        >
+          <div className="slides" aria-live="polite">
+            {slides.map((work, index) => (
+              <div key={work.id} className={`slide-wrap ${index === slide ? 'is-active' : ''}`}>
+                <HeroSlide work={work} active={index === slide} />
+              </div>
+            ))}
+          </div>
+          <span className="stage-corner tl" aria-hidden="true" /><span className="stage-corner br" aria-hidden="true" />
+          {activeWork.kind === 'video' && <button type="button" className="video-hint" onClick={() => setPanel({ id: 'character-study' })}>▶ PLAY FILM</button>}
+        </div>
+
+        <div className="hero-foot">
+          <p className="slide-caption">
+            <span className="slide-meta">{activeWork.category} {activeWork.categoryEn} ｜ {activeWork.year}</span>
+            <span className="slide-title">{activeWork.title}<i>{activeWork.titleEn}</i></span>
+          </p>
+          <div className="hero-ctrl">
+            <button type="button" className="ctrl-btn" onClick={() => goSlide(slide - 1)} aria-label="上一个作品"><ArrowLeft /></button>
+            <span className="hero-count">{String(slide + 1).padStart(2, '0')} <i>/ {String(slides.length).padStart(2, '0')}</i></span>
+            <button type="button" className="ctrl-btn" onClick={() => goSlide(slide + 1)} aria-label="下一个作品"><Arrow /></button>
+          </div>
+        </div>
+
+        <a className="scroll-hint" href="#work"><span>SCROLL</span><i>↓</i></a>
       </section>
 
-      <section id="work" className="work-section light-section" aria-labelledby="work-heading"><Reveal><div className="section-kicker"><span>01 / IMAGE WORKS</span><span>光影、材质与画面的完成度。</span></div><div className="section-heading-row"><h2 id="work-heading">一些图片类的<span className="serif-word">作品。</span></h2><span className="work-count">( 03 )</span></div><div className="work-toolbar"><p>当前使用风格参考图占位，之后可直接替换为个人静帧作品。</p><div className="filters" role="group" aria-label="按作品风格筛选">{['全部', '二次元', '魂系写实', '动画电影感'].map(category => <button type="button" key={category} aria-pressed={filter === category} className={filter === category ? 'selected' : ''} onClick={() => setFilter(category)}>{category}</button>)}</div></div><div className="project-grid">{visibleProjects.map(project => <button type="button" key={project.id} className="project-card" onClick={() => setPanel({ id: project.id })} aria-label={`查看${project.subtitle}视觉参考`}><div className="project-art" style={{ backgroundColor: project.color }}><img src={`${import.meta.env.BASE_URL}${project.image}`} alt={`${project.subtitle}，${project.category}风格参考`} loading="lazy" width="1920" height="1080" /><div className="art-shade" /><span className="art-category">{project.category}</span><span className="project-open"><Arrow diagonal /></span><div className="art-title"><small>IMAGE / {project.number}</small><span>{project.name}</span></div></div><div className="project-meta"><h3>{project.subtitle}</h3><span>VIEW FRAME ↗</span></div><p>{project.description}</p></button>)}</div><div className="reference-note"><span className="status-dot" /><p>当前图片为临时风格参考，非个人作品；更换素材的入口已集中在数据文件中。</p><span>PERSONAL WORKS COMING SOON</span></div></Reveal></section>
+      {/* 跑马灯 */}
+      <div className="marquee" aria-hidden="true">
+        <div className="marquee-track">
+          {[0, 1].map(row => <span key={row}>{Array.from({ length: 3 }).map((_, i) => <b key={i}>{site.titleEn} ★ {site.title} ★ LIGHT · COLOR · FINAL FRAME ★ 光影 · 材质 · 色彩 · 叙事 ★</b>)}</span>)}
+        </div>
+      </div>
 
-      <section id="theater" className="theater-section light-section" aria-labelledby="theater-heading"><Reveal><div className="section-kicker"><span>02 / MINI THEATER</span><span>镜头动起来，情绪才完整。</span></div><div className="section-heading-row"><h2 id="theater-heading">欢迎来到<span className="serif-word">小剧场。</span></h2><span className="work-count">( 03 )</span></div><p className="section-intro">这里用于影片、动画、合成 Breakdown 和 Showreel。当前短片为临时占位，之后替换视频地址即可。</p><div className="theater-grid">{theaterItems.map(item => <article className="film-card" key={item.number}><div className="film-frame"><video controls muted playsInline preload="metadata" poster={`${import.meta.env.BASE_URL}${item.poster}`} src={site.video}>你的浏览器不支持视频播放。</video><span className="film-number">FILM / {item.number}</span></div><div className="film-meta"><div><h3>{item.title}</h3><p>{item.subtitle}</p></div><span>{item.note}</span></div></article>)}</div></Reveal></section>
+      {/* 作品 */}
+      <section id="work" className="work-section" aria-labelledby="work-heading">
+        <Reveal>
+          <header className="section-head">
+            <div><p className="kicker">01 / WORKS <i>作品</i></p><h2 id="work-heading">WORKS<span className="head-zh">作品</span></h2></div>
+            <p className="head-note">图片静帧 · 动态影像 · 游戏原型<br />IMAGES · MOTION · GAME DEMOS</p>
+          </header>
+          <div className="filters" role="group" aria-label="按作品类型筛选">
+            {Object.keys(counts).map(category => (
+              <button type="button" key={category} aria-pressed={filter === category} className={filter === category ? 'selected' : ''} onClick={() => setFilter(category)}>
+                {category} <i>({counts[category]})</i>
+              </button>
+            ))}
+          </div>
+          <div className="work-grid">
+            {visibleWorks.map(work => (
+              <button type="button" key={work.id} className="work-card" onClick={() => setPanel({ id: work.id })} aria-label={`查看${work.title}`}>
+                <span className="work-thumb">
+                  {work.kind === 'video'
+                    ? <video src={assetUrl(site.video)} poster={assetUrl(work.image)} muted loop playsInline preload="none" />
+                    : <img src={assetUrl(work.image)} alt={`${work.title} ${work.titleEn}`} loading="lazy" />}
+                  <span className="thumb-arrow"><Arrow /></span>
+                  {work.kind === 'game' && <span className="thumb-tag">PLAY</span>}
+                </span>
+                <span className="work-meta"><b>{work.category} {work.categoryEn} ｜ {work.year}</b><i>{work.index}</i></span>
+                <span className="work-title"><b>{work.title}</b><i>{work.titleEn}</i></span>
+              </button>
+            ))}
+          </div>
+          <p className="work-note">部分展示图为风格参考素材 · 个人原创作品陆续更新 / SOME IMAGES ARE STYLE REFERENCES — ORIGINAL WORKS COMING SOON</p>
+        </Reveal>
+      </section>
 
-      <section id="demos" className="demo-section" aria-labelledby="demo-heading"><Reveal><div className="section-kicker"><span>03 / GAME DEMOS</span><span>在实时画面里，试验另一种可能。</span></div><div className="demo-heading-row"><div><h2 id="demo-heading">一些可以<span className="contact-italic">动手玩</span>的实验。</h2><p>第一个 Demo 可以直接试玩；另外两个位置用于之后展示个人小游戏。</p></div><span>PLAY / TEST / ITERATE</span></div><div className="demo-layout"><LightCatchGame /><div className="demo-stack"><article className="prototype-card"><img src={`${import.meta.env.BASE_URL}art/wuthering-waves.jpg`} alt="色彩反应小游戏原型占位图" /><div><span>PROTOTYPE / 02</span><h3>色彩反应</h3><p>根据画面提示，在颜色切换前完成选择。</p><b>原型展示位</b></div></article><article className="prototype-card"><img src={`${import.meta.env.BASE_URL}art/elden-ring.jpg`} alt="空间探索小游戏原型占位图" /><div><span>PROTOTYPE / 03</span><h3>空间探索</h3><p>在光线与阴影中，找到通向下一帧的入口。</p><b>原型展示位</b></div></article></div></div></Reveal></section>
+      {/* 关于 */}
+      <section id="profile" className="profile-section" aria-labelledby="profile-heading">
+        <Reveal className="profile-grid">
+          <div className="profile-visual">
+            <div className="video-frame">
+              <video ref={videoRef} className={ready ? 'is-ready' : ''} src={assetUrl(site.video)} muted playsInline preload="auto" disablePictureInPicture tabIndex={-1} poster={assetUrl('media/char-01.jpg')} />
+              <div className="frame-meta"><span>CHARACTER STUDY</span><Asterisk className="spin-slow" /></div>
+            </div>
+            <div className="scrub-row">
+              <span className="scrub-icon" aria-hidden="true">↔</span>
+              <label htmlFor="video-scrub">{failed ? '静态画面 · 同样值得探索' : reducedMotion ? '拖动滑块，探索角色' : '移动鼠标，看看另一帧'}</label>
+              <input id="video-scrub" aria-label="调整角色视频画面" type="range" min="0" max="100" value={Math.round(progress * 100)} disabled={failed || !ready} onChange={event => seekTo.current(Number(event.target.value) / 100)} style={{ '--progress': `${progress * 100}%` } as CSSProperties} />
+            </div>
+          </div>
+          <div className="profile-copy">
+            <p className="kicker">02 / PROFILE <i>关于</i></p>
+            <p className="profile-en">ARTIST · NO.001 — {site.titleEn}</p>
+            <h2 id="profile-heading">HELLO,<br />WORLD<span className="head-zh">你好</span></h2>
+            <p className="profile-lead">{site.profileLead}</p>
+            <p className="profile-body">{site.profileBody}</p>
+            <ul className="skill-tags">{skillTags.map(tag => <li key={tag.en}><span>{tag.zh}</span><i>{tag.en}</i></li>)}</ul>
+            <a className="text-link" href="#contact">一起创造点什么 <i>LET'S CREATE</i> <Arrow /></a>
+          </div>
+        </Reveal>
+      </section>
 
-      <section id="about" className="about-section light-section" aria-labelledby="about-heading"><Reveal className="about-grid"><div className="about-visual"><div className="about-visual-top"><span>ARTIST PROFILE</span><span>NO. 001</span></div><div className="abstract-controller" aria-hidden="true"><div className="controller-orbit" /><div className="controller-body"><div className="dpad"><span /><span /></div><div className="controller-buttons"><i /><i /><i /><i /></div><div className="controller-center"><span /><span /></div><div className="controller-stick left" /><div className="controller-stick right" /></div><span className="floating-star star-one">✳</span><span className="floating-star star-two">✦</span><span className="controller-caption">LIGHT THE SCENE<br />COMPOSE THE STORY.</span></div><div className="about-visual-bottom"><span>ONE ARTIST<br /><b>MANY FRAMES</b></span><Asterisk /></div></div><div className="about-copy"><p className="eyebrow muted">04 / FIELD EXPANSION</p><h2 id="about-heading">领域展开，<br />把画面做到<span className="serif-word">最后一步。</span></h2><p className="about-lead">你好，我是李天纯，英文名 TristanLee。<br />一名关注最终画面质感与叙事氛围的渲染合成师。</p><p>我喜欢研究光如何塑造空间，色彩怎样带来情绪，以及不同图层如何在合成阶段成为一幅完整的画面。</p><p>这个网站用来整理静帧、影片和实时视觉实验。当前展示内容是结构与风格预览，后续会逐步替换为个人作品与制作 Breakdown。</p><div className="skill-tags"><span>灯光与渲染</span><span>镜头合成</span><span>色彩与氛围</span><span>3D 动画影像</span><span>实时视觉实验</span></div><a className="text-link" href="#contact">一起创造点什么 <Arrow diagonal /></a></div></Reveal></section>
+      {/* 动态 */}
+      <section id="news" className="news-section" aria-labelledby="news-heading">
+        <Reveal>
+          <header className="section-head">
+            <div><p className="kicker">03 / NEWS <i>动态</i></p><h2 id="news-heading">NEWS<span className="head-zh">动态</span></h2></div>
+            <p className="head-note">最近更新<br />RECENT UPDATES</p>
+          </header>
+          <div className="news-list">
+            {newsItems.map(item => (
+              <a key={item.date} className="news-row" href="#contact" onClick={event => event.preventDefault()}>
+                <span className="news-date">{item.date}</span>
+                <span className="news-title"><b>{item.title}</b><i>{item.en}</i></span>
+                <span className="news-arrow"><Arrow /></span>
+              </a>
+            ))}
+          </div>
+        </Reveal>
+      </section>
 
-      <section id="contact" className="contact-section" aria-labelledby="contact-heading"><Reveal><div className="section-kicker"><span>05 / CONTACT</span><span><span className="status-dot" /> OPEN TO VISUAL COLLABORATIONS</span></div><div className="contact-main"><div><p className="contact-intro">如果你有镜头、动画、游戏画面或新的想法，欢迎联系。</p><h2 id="contact-heading">一起创造<br />点<span className="contact-italic">什么。</span><Asterisk /></h2></div><div className="contact-actions"><a href={`mailto:${site.email}`} className="contact-round" aria-label={`给 ${site.email} 发送邮件`}><Arrow diagonal /></a><a className="contact-email" href={`mailto:${site.email}`}>{site.email}</a><button type="button" className="copy-link" onClick={copyEmail}><CopyIcon copied={copied} />{copied ? '邮箱已复制' : '复制邮箱'}</button></div></div><footer className="site-footer"><a className="back-top" href="#home">返回首页 <span>↑</span></a></footer></Reveal></section>
+      {/* 图集 */}
+      <section id="media" className="media-section" aria-labelledby="media-heading">
+        <Reveal>
+          <header className="section-head">
+            <div><p className="kicker">04 / MEDIA <i>图集</i></p><h2 id="media-heading">MEDIA<span className="head-zh">图集</span></h2></div>
+            <p className="head-note">更多作品，敬请期待<br />MORE WORKS COMING SOON</p>
+          </header>
+          <div className="media-grid">
+            {mediaTiles.map((image, index) => (
+              <a key={`${image}-${index}`} className="media-tile" href="#work" onClick={event => { event.preventDefault(); setFilter('全部') }}>
+                <img src={assetUrl(image)} alt="" loading="lazy" />
+              </a>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 联系 */}
+      <section id="contact" className="contact-section" aria-labelledby="contact-heading">
+        <Reveal>
+          <p className="kicker">05 / CONTACT <i>联系</i></p>
+          <h2 id="contact-heading">一起创作<span className="hl">点什么。</span></h2>
+          <p className="contact-intro">制作委托、项目合作与交流，请从这里联系我们。<br /><i>FOR COMMISSIONS &amp; COLLABORATIONS, PLEASE GET IN TOUCH.</i></p>
+          <div className="contact-actions">
+            <a className="email-block" href={`mailto:${site.email}`}>{site.email}<Arrow /></a>
+            <button type="button" className="copy-btn" onClick={copyEmail}><CopyIcon copied={copied} />{copied ? '已复制' : '复制邮箱'}</button>
+          </div>
+          <footer className="site-footer">
+            <span className="footer-brand"><Brand compact /></span>
+            <span className="footer-copy">© {new Date().getFullYear()} {site.chineseName} {site.name} — {site.title}</span>
+            <a className="back-top" href="#home">BACK TO TOP <span>↑</span></a>
+          </footer>
+        </Reveal>
+      </section>
     </main>
+
     <DetailDialog panel={panel} onClose={() => setPanel(null)} />
     <div className={`toast ${toast ? 'is-visible' : ''}`} role="status" aria-live="polite"><span>✓</span>{toast}</div>
   </>
