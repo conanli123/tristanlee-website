@@ -53,20 +53,20 @@ function Icon({
 }
 function Brand() {
   return (
-    <span className="brand">
-      <span className="brand-top">
-        <span>Rendering artist</span>
-        <span>TristanLee</span>
+    <span className="brand" aria-hidden="true">
+      <span className="brand-language brand-zh" lang="zh-CN">
+        <span className="brand-name">李天纯</span>
+        <span className="brand-role">影视游戏渲染师</span>
       </span>
-      <span className="brand-word" aria-label="李天纯">
-        <span>李</span>
-        <span>天</span>
-        <span>纯</span>
+      <span className="brand-language brand-en" lang="en">
+        <span className="brand-name">TristanLee</span>
+        <span className="brand-role">Lighting Artist</span>
       </span>
     </span>
   );
 }
 const navigation = [
+  { id: "home", en: "HOME", zh: "首页" },
   { id: "work", en: "WORK", zh: "作品" },
   { id: "profile", en: "PROFILE", zh: "关于我" },
   { id: "news", en: "NEWS", zh: "动态" },
@@ -1061,14 +1061,16 @@ export default function App() {
         <a
           href="#/"
           className="header-logo"
-          aria-label="李天纯 TristanLee 首页"
+          aria-label="李天纯 · 影视游戏渲染师 / TristanLee · Lighting Artist — 首页"
         >
           <Brand />
         </a>
         <p className="header-intro">
-          This is the portfolio of TristanLee, a rendering & compositing artist
-          in the games industry. I create images with light, color and a little
-          imagination.
+          <span lang="zh-CN">灯光渲染艺术家，用光、色彩与想象创作</span>
+          <span lang="en">
+            Rendering &amp; Compositing Artist, creating with light, color and
+            imagination.
+          </span>
         </p>
         <nav className="desktop-nav" aria-label="主导航">
           {navigation.map((item) => (
@@ -1076,6 +1078,7 @@ export default function App() {
               href={`#/${item.id}`}
               key={item.id}
               className={page === item.id ? "active" : ""}
+              aria-current={page === item.id ? "page" : undefined}
             >
               <span>{item.en}</span>
               <span>{item.zh}</span>
@@ -1208,7 +1211,11 @@ export default function App() {
         onClose={() => setOverlay(null)}
       >
         <div className="overlay-header">
-          <a href="#/" aria-label="返回首页" onClick={() => setOverlay(null)}>
+          <a
+            href="#/"
+            aria-label="李天纯 · 影视游戏渲染师 / TristanLee · Lighting Artist — 返回首页"
+            onClick={() => setOverlay(null)}
+          >
             <Brand />
           </a>
           <button
@@ -1236,7 +1243,7 @@ export default function App() {
                 </a>
               ))}
               <a href="#/favorites" onClick={() => setOverlay(null)}>
-                <small>06</small>
+                <small>{String(navigation.length + 1).padStart(2, "0")}</small>
                 <b>FAVORITES</b>
                 <span>收藏 ({favorites.length})</span>
                 <Icon name="star" />

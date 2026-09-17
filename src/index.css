@@ -100,42 +100,64 @@ main:focus {
   border-bottom: var(--line);
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 24px;
   padding: 0 4.8vw;
 }
 .brand {
-  display: block;
-  width: 243px;
-  line-height: 1;
-}
-.brand-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.8px;
-  padding: 0 2px;
-  margin-bottom: 7px;
-}
-.brand-top > span:last-child {
-  letter-spacing: 0.6px;
-  font-size: 11px;
-}
-.brand-word {
-  display: flex;
-  justify-content: space-between;
-  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  font-size: 35px;
-  font-weight: 700;
+  display: grid;
+  width: 190px;
   line-height: 1.15;
+  overflow: hidden;
+  padding: 3px 0;
+}
+.brand-language {
+  grid-area: 1 / 1;
+  display: grid;
+  gap: 7px;
+  transition:
+    transform 0.3s var(--ease),
+    opacity 0.2s;
+}
+.brand-name {
+  font-size: 32px;
+  font-weight: 700;
   white-space: nowrap;
 }
+.brand-zh .brand-name {
+  letter-spacing: 0.12em;
+}
+.brand-role {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+.brand-en {
+  opacity: 0;
+  transform: translateY(16px);
+}
+a:is(:hover, :focus-visible) > .brand .brand-zh {
+  opacity: 0;
+  transform: translateY(-16px);
+}
+a:is(:hover, :focus-visible) > .brand .brand-en {
+  opacity: 1;
+  transform: translateY(0);
+}
+.header-logo {
+  flex-shrink: 0;
+}
 .header-intro {
-  max-width: 242px;
-  font-size: 10px;
-  line-height: 1.45;
-  font-weight: 600;
+  display: grid;
+  gap: 7px;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.header-intro > span[lang="en"] {
+  font-size: 9px;
+  font-weight: 400;
 }
 .desktop-nav {
   margin-left: auto;
@@ -143,6 +165,7 @@ main:focus {
   gap: 19px;
   align-items: center;
   height: 100%;
+  flex-shrink: 0;
 }
 .desktop-nav > a:not(.nav-icon) {
   font-size: 13px;
@@ -181,17 +204,17 @@ main:focus {
   font-size: 12px;
   white-space: nowrap;
 }
-.desktop-nav > a:hover > span:first-child,
+.desktop-nav > a:is(:hover, :focus-visible) > span:first-child,
 .desktop-nav > a.active > span:first-child {
   transform: translateY(-20px);
   opacity: 0;
 }
-.desktop-nav > a:hover > span:nth-child(2),
+.desktop-nav > a:is(:hover, :focus-visible) > span:nth-child(2),
 .desktop-nav > a.active > span:nth-child(2) {
   opacity: 1;
   transform: translateY(0);
 }
-.desktop-nav > a:hover::before,
+.desktop-nav > a:is(:hover, :focus-visible)::before,
 .desktop-nav > a.active::before {
   transform: translate(-50%, -50%) scale(1);
 }
@@ -1730,8 +1753,10 @@ main:focus {
     gap: 32px;
   }
   .header-intro {
-    max-width: 290px;
-    font-size: 11px;
+    font-size: 12px;
+  }
+  .header-intro > span[lang="en"] {
+    font-size: 10px;
   }
   .footer-brand {
     font-size: 15.2vw;
@@ -1739,26 +1764,27 @@ main:focus {
 }
 @media (max-width: 1200px) {
   .site-header {
-    gap: 22px;
+    gap: 16px;
+    padding: 0 3vw;
   }
   .header-intro {
-    max-width: 185px;
     font-size: 9px;
+  }
+  .header-intro > span[lang="en"] {
+    font-size: 8px;
   }
   .desktop-nav {
-    gap: 13px;
+    gap: 10px;
   }
   .desktop-nav > a:not(.nav-icon) {
-    font-size: 11px;
+    font-size: 10px;
+    min-width: 36px;
   }
   .brand {
-    width: 220px;
+    width: 160px;
   }
-  .brand-word {
-    font-size: 32px;
-  }
-  .brand-top {
-    font-size: 9px;
+  .brand-name {
+    font-size: 28px;
   }
   .hero-controls {
     margin-left: 9vw;
@@ -1796,13 +1822,11 @@ main:focus {
     display: none;
   }
   .brand {
-    width: 238px;
+    width: 190px;
+    text-align: center;
   }
-  .brand-word {
-    font-size: 35px;
-  }
-  .brand-top {
-    font-size: 10px;
+  .brand-name {
+    font-size: 30px;
   }
   main {
     padding-top: 78px;
@@ -1983,20 +2007,13 @@ main:focus {
     height: 76px;
   }
   .brand {
-    width: 220px;
+    width: 190px;
   }
-  .brand-word {
-    font-size: 32px;
+  .brand-name {
+    font-size: 28px;
   }
-  .brand-top {
-    font-size: 9px;
-    letter-spacing: 1.1px;
-  }
-  .brand-top > span:last-child {
+  .brand-role {
     font-size: 10px;
-  }
-  .site-header .brand-top {
-    margin-bottom: 6px;
   }
   main {
     padding-top: 76px;
@@ -2543,18 +2560,14 @@ main:focus {
     padding: 0 6vw;
   }
   .overlay-header .brand {
-    width: 180px;
+    width: 160px;
+    text-align: left;
   }
-  .overlay-header .brand-word {
+  .overlay-header .brand-name {
     font-size: 26px;
   }
-  .overlay-header .brand-top {
-    font-size: 8px;
-    letter-spacing: 0.5px;
-  }
-  .overlay-header .brand-top > span:last-child {
-    font-size: 8px;
-    letter-spacing: 0.4px;
+  .overlay-header .brand-role {
+    font-size: 9px;
   }
   .overlay-close {
     gap: 6px;
