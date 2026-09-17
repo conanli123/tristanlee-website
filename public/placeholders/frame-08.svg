@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <radialGradient id="bg" cx=".44" cy=".28" r=".9"><stop stop-color="#4677df"/><stop offset=".5" stop-color="#254ac0"/><stop offset="1" stop-color="#122474"/></radialGradient>
+    <linearGradient id="glassA" x1="0" y1="0" x2="1" y2=".7"><stop stop-color="#b6ebff" stop-opacity=".9"/><stop offset=".19" stop-color="#4e9aea" stop-opacity=".3"/><stop offset=".5" stop-color="#5ed2f8" stop-opacity=".58"/><stop offset=".72" stop-color="#31489e" stop-opacity=".62"/><stop offset="1" stop-color="#91f0ff" stop-opacity=".8"/></linearGradient>
+    <linearGradient id="glassB" x2="1" y2=".1"><stop stop-color="#0d2566" stop-opacity=".8"/><stop offset=".25" stop-color="#56a9ed" stop-opacity=".55"/><stop offset=".65" stop-color="#97dfff" stop-opacity=".85"/><stop offset="1" stop-color="#3c74c6" stop-opacity=".2"/></linearGradient>
+    <linearGradient id="glassC" x2="1" y2="1"><stop stop-color="#d6f7ff" stop-opacity=".8"/><stop offset=".48" stop-color="#739fe4" stop-opacity=".35"/><stop offset="1" stop-color="#4a6fce" stop-opacity=".9"/></linearGradient>
+    <linearGradient id="rainbow" x2="1" y2="0"><stop stop-color="#85e5ef" stop-opacity="0"/><stop offset=".25" stop-color="#91ffff" stop-opacity=".55"/><stop offset=".48" stop-color="#e2b2ff" stop-opacity=".65"/><stop offset=".68" stop-color="#ffb3d0" stop-opacity=".3"/><stop offset="1" stop-color="#adc5ff" stop-opacity="0"/></linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="16"/></filter>
+  </defs>
+  <path fill="url(#bg)" d="M0 0H1200V1200H0Z"/>
+  <path d="M0 873L1200 664V1200H0Z" fill="#2543a0"/>
+  <path d="M296 892L920 711L1200 985L621 1183Z" fill="#111e69" opacity=".6" filter="url(#blur)"/>
+  <path d="M204 1002L510 880L960 1200H657Z" fill="url(#rainbow)" filter="url(#blur)"/>
+  <path d="M382 411L662 283L844 372L564 508Z" fill="url(#glassC)" stroke="#b4e0ff" stroke-opacity=".65" stroke-width="2"/>
+  <path d="M382 411L564 508V930L382 831Z" fill="url(#glassA)" stroke="#97d7ff" stroke-opacity=".7" stroke-width="2"/>
+  <path d="M564 508L844 372V794L564 930Z" fill="url(#glassB)" stroke="#b4e0ff" stroke-opacity=".65" stroke-width="2"/>
+  <path d="M382 831L662 696L844 794L564 930Z" fill="url(#glassC)" opacity=".7"/>
+  <path d="M662 283V696L382 831M662 696L844 794" fill="none" stroke="#96c9ff" stroke-opacity=".42" stroke-width="2"/>
+  <path d="M424 433L442 443V862L424 852Z" fill="#e4fbff" opacity=".35"/>
+  <path d="M589 500L627 482V899L589 917Z" fill="#a5ffff" opacity=".24"/>
+  <path d="M564 643L844 504V537L564 675Z" fill="#92d6fd" opacity=".22"/>
+  <path d="M741 599L971 491L1074 549L844 657Z" fill="url(#glassC)" stroke="#b5e4ff" stroke-opacity=".65" stroke-width="2"/>
+  <path d="M741 599L844 657V937L741 879Z" fill="url(#glassA)" stroke="#8cc6ff" stroke-opacity=".5" stroke-width="2"/>
+  <path d="M844 657L1074 549V829L844 937Z" fill="url(#glassB)" stroke="#b5e4ff" stroke-opacity=".5" stroke-width="2"/>
+  <path d="M741 879L971 771L1074 829L844 937Z" fill="url(#glassC)" opacity=".4"/>
+  <path d="M971 491V771" stroke="#bbecff" stroke-opacity=".35" stroke-width="2"/>
+  <g transform="rotate(-13 288 727)">
+    <path d="M183 675L318 615L403 662L268 724Z" fill="url(#glassC)" stroke="#d1f2ff" stroke-opacity=".7" stroke-width="2"/>
+    <path d="M183 675L268 724V909L183 862Z" fill="url(#glassA)" stroke="#b4e0ff" stroke-opacity=".65" stroke-width="2"/>
+    <path d="M268 724L403 662V847L268 909Z" fill="url(#glassB)" stroke="#b4e0ff" stroke-opacity=".65" stroke-width="2"/>
+  </g>
+  <path d="M0 985L1200 774M0 1133L1200 922" fill="none" stroke="#83bbff" stroke-opacity=".1"/>
+</svg>

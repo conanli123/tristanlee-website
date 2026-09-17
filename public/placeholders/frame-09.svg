@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#9b713f"/><stop offset="1" stop-color="#ceb47b"/></linearGradient>
+    <linearGradient id="wall" x2="1" y2=".8"><stop stop-color="#dcc99b"/><stop offset="1" stop-color="#8a643a"/></linearGradient>
+    <linearGradient id="reveal" x2="1" y2="0"><stop stop-color="#46341f"/><stop offset="1" stop-color="#a68551"/></linearGradient>
+    <linearGradient id="light" x2="0" y2="1"><stop stop-color="#fff4be" stop-opacity=".85"/><stop offset="1" stop-color="#ffe7a8" stop-opacity="0"/></linearGradient>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#f5ca73"/><stop offset="1" stop-color="#fff9d4"/></linearGradient>
+    <radialGradient id="sphere" cx=".28" cy=".2" r=".85"><stop stop-color="#ffe9ac"/><stop offset=".5" stop-color="#cda46b"/><stop offset="1" stop-color="#765033"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="17"/></filter>
+  </defs>
+  <path fill="url(#bg)" d="M0 0H1200V1200H0Z"/>
+  <path fill="#997543" d="M0 782L1200 684V1200H0Z"/>
+  <path d="M0 0H1200V774L0 947Z" fill="url(#wall)"/>
+  <path d="M176 902V460C176 327 331 318 331 447V880Z" fill="url(#reveal)"/>
+  <path d="M212 897V449C212 334 331 332 331 447V880Z" fill="url(#sky)"/>
+  <path d="M434 865V367C434 201 636 183 636 350V836Z" fill="url(#reveal)"/>
+  <path d="M482 858V353C482 211 636 207 636 350V836Z" fill="url(#sky)"/>
+  <path d="M756 819V253C756 49 1015 20 1015 225V782Z" fill="url(#reveal)"/>
+  <path d="M815 811V233C815 53 1015 49 1015 225V782Z" fill="url(#sky)"/>
+  <path d="M212 897L331 880L618 1200H348ZM482 858L636 836L983 1200H660ZM815 811L1015 782L1200 945V1200H1155Z" fill="#f3d78e" opacity=".6"/>
+  <path d="M214 423L331 445L618 1200H348ZM490 305L636 350L983 1200H660ZM820 189L1015 225L1200 1200H1155Z" fill="url(#light)" opacity=".4" filter="url(#soft)"/>
+  <path d="M0 1061L1200 850M0 1191L1200 974M500 1200L353 899M935 1200L714 850" fill="none" stroke="#684e30" stroke-opacity=".35" stroke-width="2"/>
+  <ellipse cx="770" cy="1005" rx="125" ry="29" fill="#624424" opacity=".44" filter="url(#soft)"/>
+  <circle cx="744" cy="923" r="86" fill="url(#sphere)"/>
+  <path d="M173 900V460C173 327 331 318 331 447M431 863V367C431 201 636 183 636 350M753 817V253C753 49 1015 20 1015 225" fill="none" stroke="#f4da9c" stroke-opacity=".28" stroke-width="3"/>
+</svg>

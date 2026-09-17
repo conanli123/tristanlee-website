@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <radialGradient id="bg" cx=".34" cy=".2" r="1"><stop stop-color="#ffd5ae"/><stop offset=".55" stop-color="#eb916f"/><stop offset="1" stop-color="#b45142"/></radialGradient>
+    <linearGradient id="metal" x1=".1" y1="0" x2=".85" y2="1"><stop stop-color="#ffe4c7"/><stop offset=".13" stop-color="#fff7db"/><stop offset=".25" stop-color="#c55631"/><stop offset=".38" stop-color="#682813"/><stop offset=".43" stop-color="#f2a373"/><stop offset=".5" stop-color="#fff7e0"/><stop offset=".59" stop-color="#fff2c1"/><stop offset=".7" stop-color="#b74e24"/><stop offset=".84" stop-color="#5c251b"/><stop offset="1" stop-color="#eb9776"/></linearGradient>
+    <linearGradient id="inside" x2=".8" y2="1"><stop stop-color="#6f2b20"/><stop offset=".35" stop-color="#943c2d"/><stop offset=".58" stop-color="#fff2ca"/><stop offset=".75" stop-color="#fdb47b"/><stop offset="1" stop-color="#a43b21"/></linearGradient>
+    <linearGradient id="edge" x2=".8" y2="1"><stop stop-color="#fffce8"/><stop offset=".35" stop-color="#f5a977"/><stop offset=".7" stop-color="#613422"/><stop offset="1" stop-color="#ffdbb6"/></linearGradient>
+    <radialGradient id="shadow"><stop stop-color="#5d261c" stop-opacity=".75"/><stop offset="1" stop-color="#5d261c" stop-opacity="0"/></radialGradient>
+    <linearGradient id="pedestal" x2="0" y2="1"><stop stop-color="#dc785a"/><stop offset="1" stop-color="#9d4838"/></linearGradient>
+  </defs>
+  <path fill="url(#bg)" d="M0 0H1200V1200H0Z"/>
+  <path d="M0 934L1200 834V1200H0Z" fill="#cc705a" opacity=".3"/>
+  <ellipse cx="630" cy="962" rx="412" ry="120" fill="url(#shadow)"/>
+  <path d="M240 859H926V968C926 1028 240 1028 240 968Z" fill="url(#pedestal)"/>
+  <ellipse cx="583" cy="859" rx="343" ry="72" fill="#eea483"/>
+  <ellipse cx="614" cy="851" rx="213" ry="40" fill="url(#shadow)"/>
+  <g transform="translate(604 537) rotate(-27)">
+    <path d="M-352 0C-352-247-185-374 0-374S352-247 352 0S185 374 0 374S-352 247-352 0ZM-139 0C-139 127-88 213 0 213S139 127 139 0S88-213 0-213S-139-127-139 0Z" fill="url(#metal)" fill-rule="evenodd"/>
+    <path d="M-139 0C-139-127-88-213 0-213S139-127 139 0S88 213 0 213S-139 127-139 0ZM-99-13C-99 94-57 159 8 159S114 89 114-18S72-177 8-177S-99-121-99-13Z" fill="url(#inside)" fill-rule="evenodd"/>
+    <ellipse rx="350" ry="372" fill="none" stroke="url(#edge)" stroke-width="3"/>
+    <path d="M-305-132C-265-268-157-335-26-340" fill="none" stroke="#fff4d8" stroke-width="17" stroke-linecap="round" opacity=".64"/>
+    <path d="M208 235C281 151 305 63 299-34" fill="none" stroke="#fff3d5" stroke-width="6" stroke-linecap="round" opacity=".52"/>
+  </g>
+  <circle cx="182" cy="816" r="34" fill="url(#metal)"/>
+</svg>

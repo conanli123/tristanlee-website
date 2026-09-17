@@ -1,52 +1,45 @@
-# 部署与更新说明（TristanLee 作品集）
+# 部署与更新说明
 
-## 结构
+## 文件结构
 
-- `dev.html` — 开发/构建入口（Vite 从这里加载 `src/` 源码）。
-- `src/` — React + TypeScript 源码（组件、样式、数据）。
-- `single-file/index.html` — 由 `npm run build:single` 生成的全内嵌单文件（视频、图片全部 base64 内嵌，任何静态托管直接可用）。
-- `index.html`（仓库根）— **生产单文件页**，内容等于 `single-file/index.html` 的副本，随 git 提交。
-- `scripts/build-single.mjs` — 构建并校验单文件（内嵌 8 个媒体资源，字节级校验）。
-- `wrangler.pages.jsonc` — Cloudflare Pages 直传配置。
+- `dev.html`：Vite 源码入口；本地开发访问 `/dev.html`。
+- `src/`：React + TypeScript 源码。
+- `public/placeholders/`：当前作品素材。
+- `single-file/index.html`：经验证的全内嵌网页。
+- 根目录 `index.html`：由 `build:single` 自动同步的同一产物。
+- `scripts/build-single.mjs`：编译、内嵌与同步。
+- `scripts/verify-single.mjs`：脚本语法、媒体字节一致性与文件大小校验。
 
-## 本地开发
+## 生成可发布文件
 
-```bash
-npm install
-npm run dev        # 打开 http://127.0.0.1:5173/dev.html
+```sh
+npm ci
+npm run build:single
 ```
 
-## 构建生产单文件
+构建会将 CSS、JavaScript、favicon 和 `public/placeholders/`、`public/animations/` 中的媒体内嵌。旧 `public/art/` 和 `public/media/` 不会进入单文件。HTML 必须小于 25 MiB；更大媒体建议改为外部托管并调整构建流程。
 
-```bash
-npm run build:single   # tsc + vite build + 内嵌全部媒体 + 校验
-# 产物：single-file/index.html
+## 发布到 Cloudflare Pages
+
+仓库保留的配置项目名为 `tristanleelgt`，`wrangler.pages.jsonc` 输出目录为 `single-file`。显式直传命令：
+
+```sh
+npm run deploy:pages
 ```
 
-## 发布到公网（两种方式都可用）
+该命令会构建并发布到配置的 Pages 项目。若使用现有 GitHub 集成，应在 Cloudflare 控制台确认当前实际设置：
 
-### 方式一：推送 GitHub（自动更新，推荐）
+- 直接发布仓库根：构建后提交根 `index.html`。
+- 在云端构建：构建命令为 `npm run build:single`，输出目录为 `single-file`。
 
-Cloudflare Pages 项目 `tristanleelgt` 通过 GitHub 集成，无构建命令，直接发布仓库根目录。
-因此**每次改完代码后执行**：
+本地文件无法确认云端采用哪一种配置。GitHub Actions 目前仅执行构建检查和保存产物。
 
-```bash
-npm run build:single          # 重新生成单文件
-Copy-Item single-file\index.html index.html   # 同步到仓库根生产页
-git add -A && git commit -m "update" && git push origin main
-```
+手动浏览：直接打开根 `index.html` 或 `single-file/index.html`。所有详情使用 hash 路由，可以分享和刷新。字体有在线 CDN 依赖；离线时回退到系统字体。
 
-推送后约 1~2 分钟，https://tristanleelgt.pages.dev 自动更新。
-所有视频与交互动效都内嵌在 index.html 中，公网与本地效果一致，不会丢失。
+## GitHub 项目仓库
 
-### 方式二：wrangler 直传（立即生效，无需等构建）
+完整项目保存在 https://github.com/conanli123/tristanlee-website ，主分支为 `main`。
 
-```bash
-npx wrangler pages deploy single-file --project-name tristanleelgt --branch main
-```
+仓库包括源码、公开素材、构建脚本、部署配置、依赖锁文件和根目录独立网页。`node_modules/`、`dist/`、`single-file/`、本地缓存及日志不提交；安装依赖并构建即可重新生成。
 
-## 注意
-
-- 仓库根 `index.html` 是生产产物，不要手动编辑它；改内容请改 `src/` 后重新构建。
-- 字体来自 Google Fonts CDN（Archivo + Noto Sans SC），需联网加载。
-- 旧 worker 域名 `tristanlee.minkate689.workers.dev` 已不再更新；当前唯一公网地址为 `https://tristanleelgt.pages.dev`。
+上传仓库本身不会调用 Cloudflare 部署命令。仓库中的 GitHub Actions 负责构建检查并保存独立网页产物。

@@ -1,0 +1,281 @@
+.flower-scene {
+  --bouquet-sway-rotate: 7deg;
+  --progress: 0;
+  --progress_02: 0;
+  --progress_03: 0;
+  --progress-half: 0;
+  --grid-progress: 0;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 200 / 97;
+  overflow: hidden;
+  contain: layout style paint;
+  background: #fff;
+}
+
+.flower-scene__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  padding-top: 6%;
+  contain: layout paint style;
+}
+
+.flower-scene .bouquet {
+  position: relative;
+  left: -1%;
+  width: 64%;
+  aspect-ratio: 453 / 497;
+  margin: 0 auto;
+}
+
+.flower-scene__grid {
+  --bg-size: 10vw;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23EADEBB'%3E%3Cpath fill-rule='evenodd' d='M0 0h100v100H0Zm83 5q12 1 12 15v60q0 14-12 15H18Q6 94 5 80V20Q6 6 19 5'/%3E%3C/svg%3E");
+  background-size: var(--bg-size) var(--bg-size);
+  background-position: calc(var(--bg-size) * var(--grid-progress)) 5%;
+}
+
+.flower-scene :where(.bouquet > div:not(.girl)) {
+  --move-scale: 1;
+  position: absolute;
+  height: auto;
+  transform-origin: var(--origin-x) var(--origin-y);
+  rotate: calc(
+    var(--bouquet-sway-rotate) * var(--move-scale) * var(--progress)
+  );
+  pointer-events: none;
+  user-select: none;
+}
+
+.flower-scene img,
+.flower-scene svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.flower-scene svg {
+  overflow: visible;
+}
+.flower-scene svg * {
+  transform-box: fill-box;
+  transform-origin: 50%;
+}
+.flower-scene .bouquet > .bottle {
+  z-index: 1;
+  width: 54.45%;
+  aspect-ratio: 246.348 / 280.291;
+  top: 43.84%;
+  left: 33.47%;
+  rotate: none;
+}
+
+.flower-scene .flower-parts-07 {
+  z-index: 2;
+  --origin-x: 18%;
+  --origin-y: 92%;
+  --move-scale: 0.8;
+  --progress: var(--progress_02);
+  width: 47.1%;
+  top: 30.96%;
+  left: 48.96%;
+}
+.flower-scene .flower-parts-06 {
+  z-index: 4;
+  --origin-x: 32%;
+  --origin-y: 94%;
+  --move-scale: 0.5;
+  --progress: var(--progress_03);
+  width: 47.29%;
+  top: 19.44%;
+  left: 53.06%;
+  translate: calc(var(--progress) * 2%) calc(var(--progress) * 3%);
+}
+.flower-scene .flower-parts-05 {
+  z-index: 5;
+  --origin-x: 30%;
+  --origin-y: 100%;
+  --move-scale: 0.6;
+  --progress: var(--progress_02);
+  width: 48.56%;
+  top: 0.29%;
+  left: 41.5%;
+  translate: calc(2% + var(--progress) * 2%) calc(2% + var(--progress) * -3%);
+}
+.flower-scene .flower-parts-04 {
+  z-index: 6;
+  --origin-x: 96%;
+  --origin-y: 75%;
+  --move-scale: 0.9;
+  width: 22.9%;
+  top: 33.06%;
+  left: 24.73%;
+}
+.flower-scene .flower-parts-03 {
+  z-index: 7;
+  --origin-x: 100%;
+  --origin-y: 70%;
+  --move-scale: 0.7;
+  --progress: var(--progress_02);
+  width: 37.38%;
+  top: 20.08%;
+  left: 0.31%;
+  translate: calc(2% + var(--progress) * 2%) calc(1% + var(--progress) * 1%);
+}
+.flower-scene .flower-parts-02 {
+  z-index: 8;
+  --origin-x: 94%;
+  --origin-y: 98%;
+  --move-scale: 1.05;
+  --progress: var(--progress_02);
+  width: 24.61%;
+  top: 16.02%;
+  left: 24.84%;
+}
+.flower-scene .bouquet > .flower-parts-08 {
+  z-index: 8;
+  --origin-x: 100%;
+  --origin-y: 90%;
+  --move-scale: 0.7;
+  --progress: var(--progress_02);
+  width: 33.96%;
+  top: 6.04%;
+  left: 11.04%;
+  translate: calc(2% + var(--progress) * 3%) calc(var(--progress) * -5%);
+  rotate: calc(10deg + var(--progress) * 3deg);
+}
+.flower-scene .flower-parts-01 {
+  z-index: 9;
+  --origin-x: 5%;
+  --origin-y: 96%;
+  --move-scale: 0.9;
+  width: 18.24%;
+  top: 29.57%;
+  left: 55.35%;
+}
+.flower-scene .flower-neck {
+  z-index: 11;
+  --origin-x: 30%;
+  --origin-y: 98%;
+  --move-scale: 0.8;
+  width: 16.78%;
+  top: 27.5%;
+  left: 44.98%;
+}
+.flower-scene .flower-face {
+  z-index: 12;
+  --origin-x: 45%;
+  --origin-y: 83%;
+  --move-scale: 1.45;
+  width: 26.22%;
+  top: 9%;
+  left: 48.66%;
+  translate: calc(-1% + var(--progress) * 5%) calc(3% + var(--progress) * 6%);
+}
+.flower-scene .flower-face .eyes {
+  scale: calc(1 + var(--progress-half) * 0.1)
+    calc(0.85 + var(--progress-half) * 0.15);
+}
+.flower-scene .flower-face .petal {
+  scale: calc(1 + var(--progress-half) * 0.02);
+}
+.flower-scene .flower-face .circle,
+.flower-scene .flower-face .eyes {
+  transition: translate 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.flower-scene.is-looking-left .flower-face .eyes {
+  translate: -25% -18%;
+}
+.flower-scene.is-looking-left .flower-face .circle {
+  translate: -5.5% -2.5%;
+}
+
+.flower-scene .girl {
+  position: absolute;
+  z-index: 15;
+  --progress: var(--progress_02);
+  width: 12.27%;
+  top: 9%;
+  left: 3%;
+  aspect-ratio: 53.83 / 48.6;
+  transform-origin: 35% 85%;
+  translate: calc(2% + var(--progress) * 25%) calc(var(--progress) * -38%);
+  rotate: calc(var(--progress) * 10deg);
+  user-select: none;
+}
+.flower-scene .girl-head {
+  position: absolute;
+  width: 29.7418%;
+  top: 2.0165%;
+  left: 23.0355%;
+}
+.flower-scene .girl-head .eye {
+  transform-origin: bottom;
+  animation: flower-scene-blink 4s linear infinite;
+  animation-play-state: paused;
+}
+.flower-scene[data-running="true"] .girl-head .eye {
+  animation-play-state: running;
+}
+.flower-scene .girl-greeting {
+  position: absolute;
+  top: -18%;
+  left: 28%;
+  color: #769b64;
+  font: 700 clamp(8px, 1.1vw, 20px) / 1 sans-serif;
+  letter-spacing: 0.16em;
+  transform: rotate(12deg) scale(0.65);
+  opacity: 0;
+  transition:
+    opacity 0.2s,
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+.flower-scene .girl:hover .girl-greeting {
+  opacity: 1;
+  transform: rotate(12deg) scale(1);
+}
+
+@keyframes flower-scene-blink {
+  0%,
+  4%,
+  8%,
+  100% {
+    scale: 1;
+  }
+  2%,
+  6% {
+    scale: 1 0.3;
+  }
+}
+
+@media (max-width: 959px) {
+  .flower-scene {
+    aspect-ratio: 7 / 5;
+  }
+  .flower-scene .bouquet {
+    width: 97%;
+    left: 0;
+  }
+  .flower-scene__grid {
+    --bg-size: 16vw;
+  }
+  .flower-scene .girl-greeting {
+    font-size: clamp(8px, 1.7vw, 15px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flower-scene *,
+  .flower-scene *::before,
+  .flower-scene *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

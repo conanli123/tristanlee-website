@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <radialGradient id="bg" cx=".35" cy=".25" r="1"><stop stop-color="#f2c2ab"/><stop offset="1" stop-color="#a86459"/></radialGradient>
+    <radialGradient id="dark" cx=".31" cy=".21" r=".89"><stop stop-color="#797674"/><stop offset=".24" stop-color="#393e40"/><stop offset=".6" stop-color="#182526"/><stop offset=".86" stop-color="#101b1d"/><stop offset="1" stop-color="#465353"/></radialGradient>
+    <radialGradient id="peach" cx=".24" cy=".19" r=".84"><stop stop-color="#fff0d7"/><stop offset=".38" stop-color="#e3b296"/><stop offset=".75" stop-color="#aa7564"/><stop offset="1" stop-color="#704f4b"/></radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7e2c7"/><stop offset=".22" stop-color="#a27b62"/><stop offset=".39" stop-color="#40312a"/><stop offset=".52" stop-color="#f8dbc1"/><stop offset=".67" stop-color="#ca9c79"/><stop offset="1" stop-color="#604237"/></linearGradient>
+    <linearGradient id="base" x2="0" y2="1"><stop stop-color="#cc9881"/><stop offset="1" stop-color="#a96d5f"/></linearGradient>
+    <radialGradient id="shadow"><stop stop-color="#583d35" stop-opacity=".7"/><stop offset="1" stop-color="#583d35" stop-opacity="0"/></radialGradient>
+  </defs>
+  <path fill="url(#bg)" d="M0 0H1200V1200H0Z"/>
+  <path d="M0 868L1200 744V1200H0Z" fill="#b27c6a" opacity=".28"/>
+  <ellipse cx="591" cy="990" rx="428" ry="119" fill="url(#shadow)"/>
+  <path d="M217 833H945V942C945 1045 217 1045 217 942Z" fill="url(#base)"/>
+  <ellipse cx="581" cy="833" rx="364" ry="91" fill="#e7b9a0"/>
+  <ellipse cx="602" cy="828" rx="244" ry="64" fill="url(#shadow)"/>
+  <circle cx="625" cy="600" r="241" fill="url(#dark)"/>
+  <path d="M474 420C557 332 687 346 759 415" fill="none" stroke="#a2a7a0" stroke-width="10" stroke-linecap="round" opacity=".17"/>
+  <path d="M815 552C842 661 791 753 722 789" fill="none" stroke="#d5aa87" stroke-width="4" stroke-linecap="round" opacity=".19"/>
+  <path d="M329 516C277 590 362 744 523 811C684 878 864 846 906 768C950 687 857 534 699 470C541 406 378 445 329 516ZM363 540C404 476 548 453 688 510C828 567 909 696 872 757C834 820 679 840 539 783C399 726 322 604 363 540Z" fill="url(#ring)" fill-rule="evenodd"/>
+  <path d="M328 520C279 597 366 748 523 811C684 876 864 844 906 768" fill="none" stroke="#fce1c7" stroke-width="3" opacity=".65"/>
+  <circle cx="349" cy="756" r="75" fill="url(#peach)"/>
+  <ellipse cx="359" cy="831" rx="80" ry="17" fill="url(#shadow)"/>
+  <circle cx="830" cy="321" r="46" fill="url(#peach)"/>
+</svg>
