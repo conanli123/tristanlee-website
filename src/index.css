@@ -1808,7 +1808,10 @@ main:focus {
   }
   .hero-slide {
     border-radius: 19px;
-    transform: translateX(calc(-50% + var(--offset) * 112%)) scale(0.8);
+    transform: translateX(
+        calc(-50% + var(--offset) * 112% + var(--drag-x, 0px))
+      )
+      scale(0.8);
   }
   .hero-controls {
     margin: 24px 25px 0;

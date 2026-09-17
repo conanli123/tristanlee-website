@@ -40,17 +40,10 @@ export function useCarouselDrag(onSwipe: (direction: number) => void) {
   }, [reset]);
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (
-      !event.isPrimary ||
-      event.button !== 0 ||
-      gesture.current ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.shiftKey ||
-      event.altKey
-    )
-      return;
+    if (!event.isPrimary || event.button !== 0 || gesture.current) return;
     suppressClick.current = false;
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)
+      return;
     gesture.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
