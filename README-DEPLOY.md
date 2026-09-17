@@ -1,55 +1,52 @@
-# 部署与更新
+# 部署与更新说明（TristanLee 作品集）
 
-## 已发布网站
+## 结构
 
+- `dev.html` — 开发/构建入口（Vite 从这里加载 `src/` 源码）。
+- `src/` — React + TypeScript 源码（组件、样式、数据）。
+- `single-file/index.html` — 由 `npm run build:single` 生成的全内嵌单文件（视频、图片全部 base64 内嵌，任何静态托管直接可用）。
+- `index.html`（仓库根）— **生产单文件页**，内容等于 `single-file/index.html` 的副本，随 git 提交。
+- `scripts/build-single.mjs` — 构建并校验单文件（内嵌 8 个媒体资源，字节级校验）。
+- `wrangler.pages.jsonc` — Cloudflare Pages 直传配置。
 
+## 本地开发
 
-* Cloudflare Pages: [https://tristanleelgt.pages.dev/](https://tristanleelgt.pages.dev/)
-
-* Workers 备用地址: [https://tristanlee.minkate689.workers.dev/](https://tristanlee.minkate689.workers.dev/)
-
-Pages 已连接 GitHub 仓库 `conanli123/website` 的 `main` 分支。构建命令是 `npm run build:single`，输出目录为 `single-file`。推送后自动构建并发布，无需额外的 GitHub Secrets。本地保存文件只会更新本地预览；提交并推送后才会更新公网，通常需要几分钟。
-
-## 日常更新
-
-
-
-```
-npm run dev
-
-npm run build:single
-
-git add .
-
-git commit -m "Update portfolio"
-
-git push origin main
+```bash
+npm install
+npm run dev        # 打开 http://127.0.0.1:5173/dev.html
 ```
 
-`single-file/index.html` 是构建产物，不要手动编辑或提交。它可以直接在浏览器中打开预览。
+## 构建生产单文件
 
-手动发布到 Pages：`npm run deploy:pages`。
+```bash
+npm run build:single   # tsc + vite build + 内嵌全部媒体 + 校验
+# 产物：single-file/index.html
+```
 
-手动更新 Workers 备用地址：`npm run deploy`。两个托管项目共用同一个单文件构建流程。
+## 发布到公网（两种方式都可用）
 
-## 素材和交互
+### 方式一：推送 GitHub（自动更新，推荐）
 
+Cloudflare Pages 项目 `tristanleelgt` 通过 GitHub 集成，无构建命令，直接发布仓库根目录。
+因此**每次改完代码后执行**：
 
+```bash
+npm run build:single          # 重新生成单文件
+Copy-Item single-file\index.html index.html   # 同步到仓库根生产页
+git add -A && git commit -m "update" && git push origin main
+```
 
-* 视频：`public/media/character.mp4`，推荐 MP4 / H.264 /yuv420p。
+推送后约 1~2 分钟，https://tristanleelgt.pages.dev 自动更新。
+所有视频与交互动效都内嵌在 index.html 中，公网与本地效果一致，不会丢失。
 
-* 图片：`public/art/`。
+### 方式二：wrangler 直传（立即生效，无需等构建）
 
-* 所有本地素材通过 `src/data/assetUrl.ts` 的 `assetUrl('相对路径')` 读取。
+```bash
+npx wrangler pages deploy single-file --project-name tristanleelgt --branch main
+```
 
-* 单文件构建自动发现 public 里的视频和图片，将其与 CSS、JavaScript 一起内嵌。外部 URL 不会自动内嵌。
+## 注意
 
-* 构建会校验内嵌素材与源文件逐字节一致，检查脚本语法，检查没有开发入口或外部应用脚本。
-
-* Cloudflare Pages 单个资源上限为 25 MiB，内嵌 Base64 会增大文件。长视频应使用专用视频托管并在网站里引用，不适合塞入单个 HTML。
-
-* 浏览器的编解码能力、网络、减少动态效果设置仍会影响播放，构建成功不能替代实际浏览器验证。
-
-## 自定义域名
-
-用户已确认购买 `cgtalk.dev`。绑定 `tristanlee.cgtalk.dev` 仍需在域名管理平台设置正确的 DNS，并等待 Cloudflare HTTPS 证书生效。DNS 查询无结果并不等于域名未注册。
+- 仓库根 `index.html` 是生产产物，不要手动编辑它；改内容请改 `src/` 后重新构建。
+- 字体来自 Google Fonts CDN（Archivo + Noto Sans SC），需联网加载。
+- 旧 worker 域名 `tristanlee.minkate689.workers.dev` 已不再更新；当前唯一公网地址为 `https://tristanleelgt.pages.dev`。
