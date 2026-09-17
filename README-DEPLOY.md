@@ -4,7 +4,7 @@
 
 - `dev.html`：Vite 源码入口；本地开发访问 `/dev.html`。
 - `src/`：React + TypeScript 源码。
-- `public/placeholders/`：当前作品素材。
+- `public/works/`：正式作品图片；`public/placeholders/`：尚待替换的占位素材。
 - `single-file/index.html`：经验证的全内嵌网页。
 - 根目录 `index.html`：由 `build:single` 自动同步的同一产物。
 - `scripts/build-single.mjs`：编译、内嵌与同步。
@@ -17,7 +17,7 @@ npm ci
 npm run build:single
 ```
 
-构建会将 CSS、JavaScript、favicon 和 `public/placeholders/`、`public/animations/` 中的媒体内嵌。旧 `public/art/` 和 `public/media/` 不会进入单文件。HTML 必须小于 25 MiB；更大媒体建议改为外部托管并调整构建流程。
+构建会将 CSS、JavaScript、favicon 和 `public/works/`、`public/placeholders/`、`public/animations/` 中的媒体内嵌。旧 `public/art/` 和 `public/media/` 不会进入单文件。HTML 必须小于 25 MiB；更大媒体建议改为外部托管并调整构建流程。
 
 ## 发布到 Cloudflare Pages
 

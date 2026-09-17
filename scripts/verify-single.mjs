@@ -18,6 +18,10 @@ export function verifySingle(root) {
   );
   assert(match, "Embedded media manifest missing");
   const assets = JSON.parse(match[1]);
+  for (let index = 1; index <= 4; index++) {
+    const name = `works/lighting/d${index}.webp`;
+    assert(assets[name], `Lighting artwork missing: ${name}`);
+  }
   for (let index = 1; index <= 16; index++) {
     const name = `placeholders/frame-${String(index).padStart(2, "0")}.svg`;
     assert(assets[name], `Portfolio placeholder missing: ${name}`);

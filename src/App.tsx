@@ -316,7 +316,11 @@ function Hero() {
             >
               <img
                 src={assetUrl(work.image)}
-                alt={`${work.title} — 占位项目视觉`}
+                alt={
+                  work.imageAlt ??
+                  `${work.title}${work.isPlaceholder ? " — 占位项目视觉" : ""}`
+                }
+                style={{ objectPosition: work.imagePosition }}
                 fetchPriority={index === 0 ? "high" : "auto"}
                 draggable={false}
               />
@@ -393,7 +397,12 @@ function WorkCard({
         className="work-image"
         aria-label={`查看${work.title}`}
       >
-        <img src={assetUrl(work.image)} alt={work.title} loading="lazy" />
+        <img
+          src={assetUrl(work.image)}
+          alt={work.imageAlt ?? work.title}
+          style={{ objectPosition: work.imagePosition }}
+          loading="lazy"
+        />
         {work.index === "01" && <span className="new-badge">NEW</span>}
         {work.group !== "lighting" && (
           <span className="work-type-badge">
@@ -543,7 +552,9 @@ function Works({
             </div>
           )}
         </div>
-        <p className="placeholder-note">{site.workNotice}</p>
+        {visible.some((work) => work.isPlaceholder) && (
+          <p className="placeholder-note">{site.workNotice}</p>
+        )}
         {!full && (
           <LineLink href="#/work" zh="浏览全部作品" className="center-link">
             VIEW ALL
@@ -635,7 +646,12 @@ function Journal() {
       <div className="journal-strip">
         {works.slice(5, 11).map((work) => (
           <a key={work.id} href={`#/work/${work.id}`} aria-label={work.title}>
-            <img src={assetUrl(work.image)} alt={work.title} loading="lazy" />
+            <img
+              src={assetUrl(work.image)}
+              alt={work.imageAlt ?? work.title}
+              style={{ objectPosition: work.imagePosition }}
+              loading="lazy"
+            />
             <Icon name="arrow" />
           </a>
         ))}
@@ -722,7 +738,7 @@ const faqItems = [
   ],
   [
     "可以在哪里查看项目的具体信息？",
-    "点击作品封面可查看项目详情。当前页面内容为占位展示，正式项目上线后会补充职责、制作流程与最终画面。",
+    "点击作品封面可查看完整画面与项目简介。Lighting 分类已收录场景灯光作品，其他分类中标注的占位内容将陆续替换。",
   ],
 ];
 function FAQ() {
@@ -827,7 +843,7 @@ function WorkDetail({
         </button>
       </div>
       <div
-        className={`detail-hero ${work.kind !== "image" ? "is-screen" : ""}`}
+        className={`detail-hero ${work.kind !== "image" ? "is-screen" : ""} ${!work.isPlaceholder && work.kind === "image" ? "is-artwork" : ""}`}
       >
         {work.kind === "video" && work.videoSrc ? (
           <video
@@ -844,8 +860,16 @@ function WorkDetail({
           />
         ) : (
           <>
-            <img src={assetUrl(work.image)} alt={`${work.title}占位项目视觉`} />
-            <span>PLACEHOLDER PROJECT / {work.index}</span>
+            <img
+              src={assetUrl(work.image)}
+              alt={
+                work.imageAlt ??
+                `${work.title}${work.isPlaceholder ? "占位项目视觉" : ""}`
+              }
+            />
+            {work.isPlaceholder && (
+              <span>PLACEHOLDER PROJECT / {work.index}</span>
+            )}
           </>
         )}
       </div>
@@ -884,9 +908,7 @@ function WorkDetail({
           {work.details.map((p) => (
             <p key={p}>{p}</p>
           ))}
-          <p className="detail-credit">
-            {work.credit || "作品占位展示 / 示例视觉，不代表已完成的商业项目。"}
-          </p>
+          {work.credit && <p className="detail-credit">{work.credit}</p>}
         </div>
         <dl>
           <div>
@@ -898,8 +920,8 @@ function WorkDetail({
             <dd>TristanLee 李天纯</dd>
           </div>
           <div>
-            <dt>STATUS</dt>
-            <dd>占位项目 · 待替换</dd>
+            <dt>{work.isPlaceholder ? "STATUS" : "YEAR"}</dt>
+            <dd>{work.isPlaceholder ? "占位项目 · 待替换" : work.year}</dd>
           </div>
         </dl>
       </div>
@@ -1147,7 +1169,7 @@ export default function App() {
             <p className="article-subtitle">{article.en}</p>
             <img
               src={assetUrl(works[(newsIndex * 3) % works.length].image)}
-              alt="动态占位封面"
+              alt="作品集动态封面"
             />
             <p>{article.body}</p>
             <LineLink href="#/news" zh="返回动态列表">
@@ -1170,7 +1192,7 @@ export default function App() {
             </p>
             <p>
               页面字体由 Google Fonts
-              提供，加载字体时浏览器会连接该服务。所有作品占位图均随网站本地提供。
+              提供，加载字体时浏览器会连接该服务。所有作品图片均随网站本地提供。
             </p>
             <LineLink href="#/" zh="返回首页">
               BACK HOME
@@ -1282,7 +1304,11 @@ export default function App() {
                   href={`#/work/${work.id}`}
                   onClick={() => setOverlay(null)}
                 >
-                  <img src={assetUrl(work.image)} alt="" />
+                  <img
+                    src={assetUrl(work.image)}
+                    alt=""
+                    style={{ objectPosition: work.imagePosition }}
+                  />
                   <span>
                     <b>{work.title}</b>
                     <small>{work.titleEn}</small>

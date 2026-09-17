@@ -49,6 +49,7 @@ function collectMedia(dir, prefix = "") {
 const currentMedia = collectMedia(join(root, "public")).filter(
   (rel) =>
     rel === "favicon.svg" ||
+    rel.startsWith("works/") ||
     rel.startsWith("placeholders/") ||
     rel.startsWith("animations/"),
 );

@@ -1347,6 +1347,10 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
   height: min(70vw, 760px);
   object-fit: contain;
 }
+.detail-hero.is-artwork > img {
+  height: auto;
+  aspect-ratio: auto;
+}
 .detail-hero.is-screen {
   background: #1c2025;
 }

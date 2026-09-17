@@ -1,4 +1,4 @@
-// 当前 16 个作品案例均为版式展示占位，不能作为真实项目经历或客户合作记录。
+// Lighting 已更新为用户提供的 4 张场景作品，其余 12 个案例仍为版式展示占位。
 export const site = {
   name: "TristanLee",
   chineseName: "李天纯",
@@ -14,9 +14,9 @@ export const site = {
   profileBody:
     "从场景灯光与角色渲染，到镜头合成与材质研究，我关注画面中每一层光影的关系。这里将整理我的视觉探索与作品，让过程和最终画面一起被看见。",
   workNotice:
-    "当前 16 个作品案例及项目说明均为作品集版式占位，非实际客户项目；原创视频、游戏与插画作品将陆续补充。",
+    "Lighting 收录四幅场景光影作品；其余 12 个视频、游戏与插画案例目前为展示占位，内容将陆续更新。",
   workNoticeEn:
-    "All 16 project examples are portfolio placeholders, not client projects. Original films, game demos and illustrations will follow.",
+    "Lighting features four environment artworks. The remaining 12 film, game and illustration entries are placeholders, with more work to follow.",
 };
 
 export type WorkKind = "image" | "video" | "game";
@@ -71,6 +71,9 @@ export type Work = {
   title: string;
   titleEn: string;
   image: string;
+  imageAlt?: string;
+  imagePosition?: string;
+  isPlaceholder: boolean;
   kind: WorkKind;
   group: WorkGroup;
   description: string;
@@ -96,6 +99,7 @@ function placeholder(input: PlaceholderInput): Work {
     year: "2026",
     title: work.title,
     image: `placeholders/frame-${work.index}.svg`,
+    isPlaceholder: true,
     kind,
     description: `${work.category}展示占位：${concept}非实际客户项目。`,
     details: ["此位置用于展示原创作品，当前图像与说明均为版式占位。", process],
@@ -104,18 +108,31 @@ function placeholder(input: PlaceholderInput): Work {
   };
 }
 
+// Lighting 年份按用户要求在 2019–2026 年间分散设置，为展示年份，非图片元数据。
 export const works: Work[] = [
-  placeholder({
+  {
     id: "luminous-ruins",
     index: "01",
     category: "场景灯光",
     categoryEn: "SCENE LIGHTING",
-    title: "晨光遗迹",
-    titleEn: "LUMINOUS RUINS",
+    title: "炉火与天光",
+    titleEn: "HEARTH & DAYLIGHT",
+    year: "2020",
+    image: "works/lighting/d1.webp",
+    imageAlt:
+      "木梁与石墙构成的古朴酒馆，左侧窗光照亮桌椅，右侧壁炉与烛火泛出暖光。",
+    imagePosition: "54% 50%",
+    isPlaceholder: false,
+    kind: "image",
     group: "lighting",
-    concept: "晨光穿过建筑，勾勒空间的尺度与安静的氛围。",
-    process: "后续可补充光源布局、体积光设置及最终画面对比。",
-  }),
+    description:
+      "天光穿过左侧的菱格窗，落在木桌、长凳与旧地板上。右侧石砌壁炉和零星烛火点亮室内，让这间木梁与石墙围合的酒馆呈现出安静而温暖的气息。",
+    details: [
+      "偏冷的窗光与偏暖的炉火形成画面的两组光源关系。轻薄的空气感柔化远处的吧台与木桶，近处桌面的亮部则保留清晰的木纹与器皿轮廓。",
+      "前景桌椅、中央过道与后方吧台构成逐层深入的空间。厚重木梁下的阴影、石墙的粗糙表面和壁炉边的金色反光，共同呈现旧酒馆的材质与生活温度。",
+    ],
+    credit: "场景灯光作品 / SCENE LIGHTING PORTFOLIO",
+  },
   placeholder({
     id: "portrait-study",
     index: "02",
@@ -142,17 +159,29 @@ export const works: Work[] = [
       "预留给游戏场景短片，探索雾、光与景深的镜头层次；目前为计划中的案例占位，视频待补充。",
     process: "后续可补充完整短片、分层素材、合成节点与制作前后对比。",
   }),
-  placeholder({
+  {
     id: "neon-night",
     index: "04",
     category: "场景灯光",
     categoryEn: "SCENE LIGHTING",
-    title: "霓虹夜色",
-    titleEn: "NEON NIGHT",
+    title: "蓝调摩天轮",
+    titleEn: "BLUE HOUR WHEEL",
+    year: "2023",
+    image: "works/lighting/d2.webp",
+    imageAlt:
+      "夜色中的摩天轮以青蓝与淡紫灯带勾勒轮廓，潮湿广场映出灯光，远处建筑隐入薄雾。",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
     group: "lighting",
-    concept: "冷暖光源、反射与夜景色彩的视觉探索。",
-    process: "后续可补充冷暖光源设计、反射控制与场景照明过程。",
-  }),
+    description:
+      "深蓝夜空下，青蓝与淡紫色的灯带沿着摩天轮铺展，明亮的圆形结构成为广场的视觉中心。空旷的地面、静止的座舱与远处薄雾，让游乐场呈现出夜幕降临后的宁静。",
+    details: [
+      "画面采用接近对称的正面构图，以摩天轮的放射线条和地面铺装引导视线。潮湿路面接住冷色灯光，在前景形成柔和反射，将主体与广场空间联系起来。",
+      "两侧路灯和建筑窗边的暖光为蓝色环境提供细微对比。背景楼群逐渐融入雾气，保留城市的尺度，同时让轮缘、支架与灯带的层次更加鲜明。",
+    ],
+    credit: "场景灯光作品 / SCENE LIGHTING PORTFOLIO",
+  },
   placeholder({
     id: "material-library",
     index: "05",
@@ -179,17 +208,29 @@ export const works: Work[] = [
       "预留给夜景叙事短片，探索调色与合成如何建立镜头情绪；目前为计划中的案例占位，视频待补充。",
     process: "后续可补充完整视频、调色方向、合成分解与镜头版本对比。",
   }),
-  placeholder({
+  {
     id: "forest-light",
     index: "07",
     category: "场景灯光",
     categoryEn: "ENVIRONMENT LIGHTING",
-    title: "林间光隙",
-    titleEn: "FOREST LIGHT",
+    title: "光落圣所",
+    titleEn: "SANCTUARY OF LIGHT",
+    year: "2019",
+    image: "works/lighting/d3.webp",
+    imageAlt:
+      "金色阳光穿过圆形天窗，照亮苔藓覆盖的石砌遗迹与中央祭台，地面散落陶罐和碎石。",
+    imagePosition: "57% 50%",
+    isPlaceholder: false,
+    kind: "image",
     group: "lighting",
-    concept: "林间散射光、柔和阴影与自然色彩的观察。",
-    process: "后续可补充自然光方向、环境色与空气透视的制作过程。",
-  }),
+    description:
+      "金色日光从圆形天窗倾泻而下，穿过空气中的微尘，照亮遗迹中央的石制祭台。四周的苔藓、垂落的旧布与残损石墙围合出一处被森林慢慢收回的古老空间。",
+    details: [
+      "天窗光束将视线引向中央祭台与层叠台阶，后方拱门透入的柔光则打开空间纵深。明亮的暖色光区与两侧深色石柱相互映衬，使主体从厚重的建筑阴影中显现。",
+      "前景破碎的陶罐、散落石块与蜿蜒植物保留丰富的细节。光线掠过石材边缘和青苔表面，柔和的空气透视将近处的暗部与远处林景连接起来，留下静谧而庄重的氛围。",
+    ],
+    credit: "场景灯光作品 / SCENE LIGHTING PORTFOLIO",
+  },
   placeholder({
     id: "hard-surface",
     index: "08",
@@ -216,17 +257,29 @@ export const works: Work[] = [
       "预留给科幻游戏影像，探索渲染通道与特效层的整合；目前为计划中的案例占位，视频待补充。",
     process: "后续可补充完整短片、渲染通道、光影调整与特效合成分解。",
   }),
-  placeholder({
+  {
     id: "silent-interior",
     index: "10",
     category: "场景灯光",
-    categoryEn: "INTERIOR LIGHTING",
-    title: "静谧室内",
-    titleEn: "SILENT INTERIOR",
+    categoryEn: "ENVIRONMENT LIGHTING",
+    title: "森林低语",
+    titleEn: "FOREST WHISPERS",
+    year: "2025",
+    image: "works/lighting/d4.webp",
+    imageAlt:
+      "阳光透过茂密树冠洒入森林，古树根部与倒木覆着青苔，蘑菇和蕨叶散布在林地间。",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
     group: "lighting",
-    concept: "窗光、反射光与暗部细节共同塑造空间。",
-    process: "后续可补充窗光构图、间接照明与画面曝光的处理。",
-  }),
+    description:
+      "高大的树干围出一片幽静林地，阳光穿过树冠，落在覆满青苔的树根、岩石与横卧的倒木上。蘑菇和蕨叶散布其间，让森林的宏大尺度与贴近地面的细小生命同处一个画面。",
+    details: [
+      "斑驳日光沿着树皮与苔藓表面铺开，亮处呈现温暖的黄绿色，阴影则保留沉静的深绿。透入林间的光束与薄雾拉开前后层次，让密集的植被仍然具有清楚的空间关系。",
+      "两侧树干形成自然的画框，横向倒木稳住构图，前景的小径与根系将视线带入深处。蘑菇的暖褐色、潮湿苔藓与粗糙树皮，为整体绿色环境增添细腻的色彩和质感变化。",
+    ],
+    credit: "场景灯光作品 / SCENE LIGHTING PORTFOLIO",
+  },
   placeholder({
     id: "cloth-and-skin",
     index: "11",
@@ -321,7 +374,7 @@ export const newsItems = [
     date: "2026.09.17",
     title: "作品与制作过程更新计划",
     en: "Original work and process notes to follow",
-    body: "目前的项目内容为展示占位。后续将逐步补充原创作品、制作说明与合成前后对比。",
+    body: "Lighting 已更新四幅场景光影作品，涵盖酒馆室内、摩天轮夜景、石砌遗迹与自然森林。其余 12 个视频、游戏与插画案例目前为展示占位，后续将陆续补充作品与制作说明。",
   },
 ];
 
