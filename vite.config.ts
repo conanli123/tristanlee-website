@@ -13,6 +13,19 @@ export default defineConfig({
   },
   server: {
     open: "/dev.html",
-    proxy: { "/api": "http://127.0.0.1:8788" },
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:8788",
+        changeOrigin: true,
+        configure(proxy) {
+          // Keep the local Pages API's origin check valid through Vite.
+          proxy.on("proxyReq", (proxyRequest, request) => {
+            if (request.headers.origin === `http://${request.headers.host}`) {
+              proxyRequest.setHeader("Origin", "http://127.0.0.1:8788");
+            }
+          });
+        },
+      },
+    },
   },
 });
