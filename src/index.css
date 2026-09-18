@@ -541,6 +541,31 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
   line-height: 1.8;
   margin-bottom: 30px;
 }
+.lighting-depth-feature {
+  margin: 8px 0 54px;
+  padding: 18px 0 0;
+  border-top: 1px solid rgba(20, 20, 20, .18);
+}
+.lighting-depth-copy {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 4px;
+}
+.lighting-depth-copy p {
+  color: #777;
+  font-size: 11px;
+}
+.lighting-depth-feature .depth-carousel {
+  margin-inline: auto;
+  max-width: 1100px;
+}
+@media (max-width: 700px) {
+  .lighting-depth-feature { margin-bottom: 36px; }
+  .lighting-depth-copy { display: block; }
+  .lighting-depth-copy p { margin-top: 7px; }
+}
 .work-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

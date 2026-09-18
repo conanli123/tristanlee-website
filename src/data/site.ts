@@ -1,4 +1,4 @@
-// Lighting 已更新为用户提供的 7 张场景作品，其余 12 个案例仍为版式展示占位。
+// Lighting 已更新为用户提供的 13 张场景作品，其余 12 个案例仍为版式展示占位。
 export const site = {
   name: "TristanLee",
   chineseName: "李天纯",
@@ -14,9 +14,9 @@ export const site = {
   profileBody:
     "从场景灯光与角色渲染，到镜头合成与材质研究，我关注画面中每一层光影的关系。这里将整理我的视觉探索与作品，让过程和最终画面一起被看见。",
   workNotice:
-    "Lighting 收录七幅场景光影作品；其余 12 个视频、游戏与插画案例目前为展示占位，内容将陆续更新。",
+    "Lighting 收录十三幅场景光影作品；其余 12 个视频、游戏与插画案例目前为展示占位，内容将陆续更新。",
   workNoticeEn:
-    "Lighting features seven environment artworks. The remaining 12 film, game and illustration entries are placeholders, with more work to follow.",
+    "Lighting features thirteen environment artworks. The remaining 12 film, game and illustration entries are placeholders, with more work to follow.",
 };
 
 export type WorkKind = "image" | "video" | "game";
@@ -420,6 +420,144 @@ export const works: Work[] = [
     ],
     credit: "场景灯光作品 / SCENE LIGHTING PORTFOLIO",
   },
+  {
+    id: "lantern-street",
+    index: "20",
+    category: "场景灯光",
+    categoryEn: "ENVIRONMENT LIGHTING",
+    title: "暮色灯街",
+    titleEn: "TWILIGHT LANTERN STREET",
+    year: "2023",
+    image: "works/lighting/d8.webp",
+    imageAlt:
+      "夕阳染红天空的日式街区，木格窗与店铺灯笼沿着安静街道依次亮起，电线和屋檐延伸向远方。",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "暮色落入一条安静的日式街巷，屋檐、木格窗与店铺招牌被橙金色的晚霞一一勾亮。道路从前景延伸至远处的树影与天空，暖色室内光让街道拥有刚刚入夜的生活气息。",
+    details: [
+      "低角度夕阳从街道尽头铺开，给墙面与瓦檐染上统一的暖色；门廊灯笼和橱窗光则提供更饱和的局部亮点，形成由天光到人工光的自然过渡。",
+      "两侧建筑的水平屋檐、电线和路面边线共同汇聚到画面中心。前景留出大面积安静路面，细小的盆栽、招牌与窗格为近处增加尺度和节奏。",
+    ],
+    credit: "场景灯光作品 / SCENE LIGHTING PORTFOLIO",
+  },
+  {
+    id: "armored-vanguard",
+    index: "21",
+    category: "载具灯光",
+    categoryEn: "VEHICLE LIGHTING",
+    title: "钢铁前哨",
+    titleEn: "IRON VANGUARD",
+    year: "2020",
+    image: "works/lighting/d9.webp",
+    imageAlt:
+      "工业机库前停着一辆装甲战术车，炮塔、天线和磨损金属表面在阴天环境光下清晰可见。",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "一辆带有炮塔和长天线的装甲战术车停在工业机库外，背景山脊被灰白天光压低。车身的大块金属面、轮胎和铆钉在冷静的环境光下呈现出可靠而厚重的工业质感。",
+    details: [
+      "阴天漫射光压低了整体反差，却在车顶、挡风玻璃和炮塔边缘留下细窄高光，清楚交代装甲板的转折与磨损。暖灰地面反射少量底光，避免车底完全陷入黑暗。",
+      "近距离三分之四构图突出车头与炮塔的体量，机库门和远山形成简洁的尺度参照。冷灰、军绿与旧金色细节共同建立克制的战地色调。",
+    ],
+    credit: "载具灯光与渲染作品 / VEHICLE LIGHTING & RENDERING",
+  },
+  {
+    id: "gearforge-raccoon",
+    index: "22",
+    category: "角色灯光",
+    categoryEn: "CHARACTER LIGHTING",
+    title: "齿轮工坊",
+    titleEn: "GEARFORGE RACCOON",
+    year: "2025",
+    image: "works/lighting/d10.webp",
+    imageAlt:
+      "戴护目镜的浣熊工程师站在木质机械工坊中，身旁有齿轮机器、药剂瓶和石砌壁炉。",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "戴着铜色护目镜的浣熊工程师握住扳手，站在堆满齿轮、药剂瓶和图纸的木质工坊里。左侧机械装置与右侧石砌壁炉分别提供蓝橙两组光源，让角色成为温暖空间中的清晰焦点。",
+    details: [
+      "窗边偏冷的蓝光勾出浣熊耳朵、护目镜和毛发轮廓，壁炉与桌面灯则以橙色暖光照亮脸部和工具。互补色光源强化了童话工坊的材质与氛围。",
+      "角色位于画面中心，木质机器、壁炉和后方层架围合出稳定的三角构图。前景蓝图、齿轮与瓶罐补充故事细节，并把视线从桌面引向角色表情。",
+    ],
+    credit: "角色与场景灯光作品 / CHARACTER & ENVIRONMENT LIGHTING",
+  },
+  {
+    id: "forest-tiger-chase",
+    index: "23",
+    category: "影视场景灯光",
+    categoryEn: "CINEMATIC LIGHTING",
+    title: "林间追逐",
+    titleEn: "CHASE THROUGH THE GROVE",
+    year: "2021",
+    image: "works/lighting/d13.webp",
+    imageAlt:
+      "蓝绿色森林中的大虎回头低吼，两个卡通角色一前一后追赶，湿润草地映出环境光。",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "蓝绿色森林里，一只大虎弓身回望，两个小小的追逐者分别从左右靠近。湿润草地、远处树影与角色身上的暖色毛发在冷色环境光中形成鲜明的电影感对比。",
+    details: [
+      "林冠散射的蓝光铺满背景和地面，虎背与角色边缘被柔和轮廓光分离出来。虎身的棕橙色与右侧角色的暖肤色成为画面中最醒目的色彩锚点。",
+      "低机位横向构图保留奔跑方向和前后景关系，前景水洼反射出零碎亮斑。薄雾、花草和远处高光让森林空间既有深度，又保持动画场景的清晰阅读。",
+    ],
+    credit: "影视合成场景灯光作品 / CINEMATIC COMPOSITING LIGHTING",
+  },
+  {
+    id: "afanti-market",
+    index: "24",
+    category: "角色与场景灯光",
+    categoryEn: "CHARACTER & SET LIGHTING",
+    title: "阿凡提的集市",
+    titleEn: "AFANTI'S MARKET",
+    year: "2017",
+    image: "works/lighting/d14.webp",
+    imageAlt:
+      "沙漠土楼组成的明亮集市，阿凡提与商贩、骆驼和毛驴在蓝天下穿行，长长的午后阴影落在土路上。",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "蓝天下的土楼集市被正午阳光照得通透明亮，阿凡提与商贩、骆驼和毛驴穿行在摊位之间。赭红墙面、彩色织物和长长的地面阴影构成一幅带有民间故事气息的动画场景。",
+    details: [
+      "高位硬光从左上方照下，强调土墙的颗粒质感与人物服饰的褶皱；建筑檐口和角色脚下的阴影为强烈日照提供节奏，也让集市动线更清楚。",
+      "中央人物群形成视觉焦点，两侧摊位、乐器和织毯把视线展开到画面边缘。明亮青蓝天空与橙褐建筑形成互补色关系，保留 2017 年动画长片式的鲜明色彩。",
+    ],
+    credit: "动画场景灯光作品 · 2017 / ANIMATED SET LIGHTING · 2017",
+  },
+  {
+    id: "crystal-canyon-expedition",
+    index: "25",
+    category: "场景灯光",
+    categoryEn: "ENVIRONMENT LIGHTING",
+    title: "晶谷远征",
+    titleEn: "CRYSTAL CANYON EXPEDITION",
+    year: "2019",
+    image: "works/lighting/d11.webp",
+    imageAlt:
+      "红色峡谷中，机器人、女孩和戴探险帽的熊围着老式汽车停下，青蓝发光植物点亮岩壁。",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "机器人、年轻探险家和背着行囊的熊在红色峡谷中围着一辆老式汽车短暂停留。岩壁间生长的青蓝色晶体植物点亮阴影，和夕阳般的暖色地面共同构成轻快的冒险氛围。",
+    details: [
+      "顶部暖光照亮角色、汽车和峡谷岩层，青蓝晶体则从低处提供反向冷光，勾出轮胎、工具和人物腿部的边缘。冷暖相交让每个角色在拥挤构图中仍保持清晰。",
+      "汽车位于中心作为叙事道具，机器人与熊分列两侧形成平衡，女孩的红发和护目镜把视线带向车头。前景发光植物和悬挂电缆增加空间层次与游戏世界的探索感。",
+    ],
+    credit: "游戏场景灯光作品 / GAME ENVIRONMENT LIGHTING",
+  },
 ];
 
 export const skillTags = [
@@ -443,7 +581,7 @@ export const newsItems = [
     date: "2026.09.17",
     title: "作品与制作过程更新计划",
     en: "Original work and process notes to follow",
-    body: "Lighting 已更新七幅场景光影作品，涵盖酒馆室内、摩天轮夜景、石砌遗迹、自然森林、雨夜街区、日光客厅与山水楼阁。其余 12 个视频、游戏与插画案例目前为展示占位，后续将陆续补充作品与制作说明。",
+    body: "Lighting 已更新十三幅场景光影作品，涵盖酒馆室内、摩天轮夜景、石砌遗迹、自然森林、雨夜街区、日光客厅、山水楼阁、暮色灯街、装甲载具、齿轮工坊、森林追逐、阿凡提集市与晶谷远征。其余 12 个视频、游戏与插画案例目前为展示占位，后续将陆续补充作品与制作说明。",
   },
 ];
 

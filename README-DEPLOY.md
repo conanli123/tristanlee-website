@@ -12,7 +12,7 @@
 - `functions/`：公开点赞的 Cloudflare Pages Functions API。
 - `migrations/`：点赞 D1 数据库迁移；`wrangler.jsonc`：Pages 项目与数据库绑定配置，Wrangler 自动读取。
 
-当前有 19 件作品，其中 7 件 Lighting 作品使用用户提供的 `d1` 至 `d7` 图片，其余 12 件为占位。作品年份为用户要求的展示年份。
+当前有 25 件作品，其中 13 件 Lighting 作品使用用户提供的 `d1` 至 `d11`、`d13`、`d14` 图片，其余 12 件为占位。Lighting 分类包含深度翻页展示；阿凡提作品年份为 2017，其余新增年份按用户要求配置。
 
 ## 生成可发布文件
 

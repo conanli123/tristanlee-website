@@ -18,7 +18,7 @@ export function verifySingle(root) {
   );
   assert(match, "Embedded media manifest missing");
   const assets = JSON.parse(match[1]);
-  for (let index = 1; index <= 7; index++) {
+  for (const index of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 14, 11]) {
     const name = `works/lighting/d${index}.webp`;
     assert(assets[name], `Lighting artwork missing: ${name}`);
   }

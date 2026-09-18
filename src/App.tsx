@@ -9,6 +9,7 @@ import { useCarouselDrag } from "./hooks/useCarouselDrag";
 import { useCarouselHover } from "./hooks/useCarouselHover";
 import FlowerScene from "./components/FlowerScene";
 import { LikeButton } from "./components/LikesProvider";
+import DepthCarousel from "./components/DepthCarousel";
 
 function Icon({
   name,
@@ -489,6 +490,7 @@ function Works({
   const visible = base.filter(
     (work) => category === "all" || work.group === category,
   );
+  const lightingWorks = base.filter((work) => work.group === "lighting");
   return (
     <section
       className={`section work-section ${full ? "page-section" : ""}`}
@@ -530,6 +532,36 @@ function Works({
         <p className="work-category-caption" aria-live="polite">
           {categories.find((item) => item.id === category)?.description}
         </p>
+        {full && category === "lighting" && lightingWorks.length > 1 && (
+          <div className="lighting-depth-feature">
+            <div className="lighting-depth-copy">
+              <span className="eyebrow">DEPTH / LIGHTING STUDIES</span>
+              <p>沿着光线的层次翻阅每一幅场景。</p>
+            </div>
+            <DepthCarousel
+              items={lightingWorks.map((work) => ({
+                image: assetUrl(work.image),
+                alt: work.imageAlt ?? work.title,
+                label: `${work.title} · ${work.year}`,
+              }))}
+              cardWidth={420}
+              cardHeight={320}
+              depth={230}
+              spread={120}
+              tilt={18}
+              perspective={1200}
+              visibleCards={4}
+              falloff={0.18}
+              duration={650}
+              radius={19}
+              showIndicators
+              onSelect={(index) => {
+                const selected = lightingWorks[index];
+                if (selected) window.location.hash = `#/work/${selected.id}`;
+              }}
+            />
+          </div>
+        )}
         <div ref={worksRef}>
           <div className="work-grid">
             {visible.map((work) => (
