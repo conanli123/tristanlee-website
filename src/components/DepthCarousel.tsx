@@ -193,8 +193,9 @@ export default function DepthCarousel({
       )
     )
       return;
+    // A deliberate new pointer gesture should always be allowed to select a card.
+    suppressClickRef.current = false;
     snapTimer.current && clearTimeout(snapTimer.current);
-    rootRef.current?.setPointerCapture(event.pointerId);
     dragRef.current = {
       x: event.clientX,
       start: offsetRef.current,
@@ -319,7 +320,7 @@ export default function DepthCarousel({
               aria-current={active === index ? "true" : undefined}
               tabIndex={active === index ? 0 : -1}
               onClick={() => {
-                if (!dragging && !suppressClickRef.current) {
+                if (!dragRef.current && !suppressClickRef.current) {
                   commit(index);
                   onSelect?.(index, data[index]);
                 }
