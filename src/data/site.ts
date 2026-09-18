@@ -1,4 +1,4 @@
-// Lighting 已更新为用户提供的 4 张场景作品，其余 12 个案例仍为版式展示占位。
+// Lighting 已更新为用户提供的 7 张场景作品，其余 12 个案例仍为版式展示占位。
 export const site = {
   name: "TristanLee",
   chineseName: "李天纯",
@@ -14,9 +14,9 @@ export const site = {
   profileBody:
     "从场景灯光与角色渲染，到镜头合成与材质研究，我关注画面中每一层光影的关系。这里将整理我的视觉探索与作品，让过程和最终画面一起被看见。",
   workNotice:
-    "Lighting 收录四幅场景光影作品；其余 12 个视频、游戏与插画案例目前为展示占位，内容将陆续更新。",
+    "Lighting 收录七幅场景光影作品；其余 12 个视频、游戏与插画案例目前为展示占位，内容将陆续更新。",
   workNoticeEn:
-    "Lighting features four environment artworks. The remaining 12 film, game and illustration entries are placeholders, with more work to follow.",
+    "Lighting features seven environment artworks. The remaining 12 film, game and illustration entries are placeholders, with more work to follow.",
 };
 
 export type WorkKind = "image" | "video" | "game";
@@ -351,6 +351,75 @@ export const works: Work[] = [
     concept: "预留给个人游戏角色插画，探索角色轮廓、服饰细节与叙事姿态。",
     process: "后续可补充原创角色完成图、造型草稿、配色与局部细节。",
   }),
+  {
+    id: "neon-rain",
+    index: "17",
+    category: "场景灯光",
+    categoryEn: "ENVIRONMENT LIGHTING",
+    title: "雨夜霓虹",
+    titleEn: "NEON AFTER RAIN",
+    year: "2021",
+    image: "works/lighting/d5.webp",
+    imageAlt:
+      "高楼与空中连廊围合的未来街区，青蓝路灯和彩色霓虹映在湿润路面上，银灰跑车停在街边。",
+    imagePosition: "48% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "高楼与交错的空中连廊围合出一条未来都市街道。青蓝色路灯、紫色霓虹与店铺的暖光倒映在雨后的地面，银灰跑车停在前景，远处行人和薄雾让城市夜色显得深邃而安静。",
+    details: [
+      "冷色环境光铺满街道，与门窗和招牌的橙红暖光形成对照。潮湿路面的倒影将零散光源延伸至前景，车身上的高光则勾勒出金属轮廓，建立清晰的视觉重心。",
+      "街道透视、两侧立面与头顶连廊共同将视线引向远处。霓虹在不同距离上呈现出亮度和色彩变化，背景逐渐融入蓝色雾气，使密集的建筑、车辆与灯光保持层次。",
+    ],
+    credit: "场景灯光作品 / SCENE LIGHTING PORTFOLIO",
+  },
+  {
+    id: "quiet-daylight",
+    index: "18",
+    category: "场景灯光",
+    categoryEn: "INTERIOR LIGHTING",
+    title: "暖木日光",
+    titleEn: "SUNLIT TIMBER",
+    year: "2024",
+    image: "works/lighting/d6.webp",
+    imageAlt:
+      "柔和日光从整面落地窗照入现代客厅，浅木饰面、米色沙发与餐桌构成温暖简洁的室内空间。",
+    imagePosition: "51% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "整面落地窗将庭院与柔和日光引入室内，浅色木饰面、米色沙发和灰色地坪共同构成安静的生活空间。客厅向后延伸至餐区，灯带与雕塑感落地灯为简洁的构图添上一点暖意。",
+    details: [
+      "右侧窗光是画面的主要光源，在地面和家具上形成宽阔柔和的明暗过渡。墙面与柜体间的暖色灯带补充低亮度照明，让木纹、织物与哑光表面的质感各自清晰。",
+      "横向展开的沙发、茶几与电视柜稳定画面，后方餐桌和连续木饰面拉出空间纵深。整体以米白、浅木色和暖灰为主，窗边绿植与室外景色带来轻微的色彩变化。",
+    ],
+    credit: "场景灯光作品 / SCENE LIGHTING PORTFOLIO",
+  },
+  {
+    id: "mistwater-pavilion",
+    index: "19",
+    category: "场景灯光",
+    categoryEn: "ENVIRONMENT LIGHTING",
+    title: "烟岚水榭",
+    titleEn: "PAVILION IN THE MIST",
+    year: "2022",
+    image: "works/lighting/d7.webp",
+    imageAlt:
+      "临水木构楼阁立在覆苔岩岸上，晨光穿过远山与薄雾，竹林、瀑布和水面倒影环绕建筑。",
+    imagePosition: "57% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "层叠山峰与瀑布隐入薄雾，一座木构楼阁临水而立。暖色天光从山间透出，掠过屋檐、竹叶与覆苔岩石，平静水面映出建筑的轮廓，让山水之间保留一份悠然的静意。",
+    details: [
+      "偏暖的低角度天光照亮远处雾气，与近景竹林和建筑阴影形成柔和对比。层层淡去的山体将空间向后延展，屋檐和木柱的侧向受光则保留楼阁的结构节奏。",
+      "左侧竹林与前景岩石围出观看路径，水岸弧线引导视线抵达楼阁。水面反射、苔藓的绿色与远处瀑布的亮部相互呼应，连接细致的近景材质与朦胧的山水背景。",
+    ],
+    credit: "场景灯光作品 / SCENE LIGHTING PORTFOLIO",
+  },
 ];
 
 export const skillTags = [
@@ -374,7 +443,7 @@ export const newsItems = [
     date: "2026.09.17",
     title: "作品与制作过程更新计划",
     en: "Original work and process notes to follow",
-    body: "Lighting 已更新四幅场景光影作品，涵盖酒馆室内、摩天轮夜景、石砌遗迹与自然森林。其余 12 个视频、游戏与插画案例目前为展示占位，后续将陆续补充作品与制作说明。",
+    body: "Lighting 已更新七幅场景光影作品，涵盖酒馆室内、摩天轮夜景、石砌遗迹、自然森林、雨夜街区、日光客厅与山水楼阁。其余 12 个视频、游戏与插画案例目前为展示占位，后续将陆续补充作品与制作说明。",
   },
 ];
 

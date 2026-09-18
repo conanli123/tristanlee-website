@@ -8,6 +8,7 @@ import { useProfileMotion } from "./hooks/useProfileMotion";
 import { useCarouselDrag } from "./hooks/useCarouselDrag";
 import { useCarouselHover } from "./hooks/useCarouselHover";
 import FlowerScene from "./components/FlowerScene";
+import { LikeButton } from "./components/LikesProvider";
 
 function Icon({
   name,
@@ -428,14 +429,17 @@ function WorkCard({
       <div className="work-meta">
         <span>{work.category}</span>
         <time>{work.year}</time>
-        <button
-          className={`favorite-button ${favorite ? "selected" : ""}`}
-          aria-label={`${favorite ? "取消收藏" : "收藏"}${work.title}`}
-          aria-pressed={favorite}
-          onClick={() => toggle(work.id)}
-        >
-          <Icon name="star" />
-        </button>
+        <div className="work-actions">
+          <LikeButton id={work.id} title={work.title} />
+          <button
+            className={`favorite-button ${favorite ? "selected" : ""}`}
+            aria-label={`${favorite ? "取消收藏" : "收藏"}${work.title}`}
+            aria-pressed={favorite}
+            onClick={() => toggle(work.id)}
+          >
+            <Icon name="star" />
+          </button>
+        </div>
       </div>
       <a href={`#/work/${work.id}`} className="work-title">
         {work.title}
@@ -833,14 +837,17 @@ function WorkDetail({
           <h1>{work.title}</h1>
           <p>{work.titleEn}</p>
         </div>
-        <button
-          className={`detail-save favorite-button ${favorite ? "selected" : ""}`}
-          onClick={() => toggle(work.id)}
-          aria-pressed={favorite}
-        >
-          <Icon name="star" />
-          <span>{favorite ? "已收藏" : "收藏作品"}</span>
-        </button>
+        <div className="detail-actions">
+          <LikeButton id={work.id} title={work.title} />
+          <button
+            className={`detail-save favorite-button ${favorite ? "selected" : ""}`}
+            onClick={() => toggle(work.id)}
+            aria-pressed={favorite}
+          >
+            <Icon name="star" />
+            <span>{favorite ? "已收藏" : "收藏作品"}</span>
+          </button>
+        </div>
       </div>
       <div
         className={`detail-hero ${work.kind !== "image" ? "is-screen" : ""} ${!work.isPlaceholder && work.kind === "image" ? "is-artwork" : ""}`}
@@ -1185,7 +1192,12 @@ export default function App() {
             <OutlineHeading>PRIVACY</OutlineHeading>
             <h1>隐私说明</h1>
             <p>
-              本作品集没有账户系统，也不主动收集你的个人信息。收藏记录仅保存在当前浏览器的本地存储中，你可以通过取消收藏或清除站点数据删除。
+              本作品集没有账户系统。收藏记录仅保存在当前浏览器的本地存储中，你可以通过取消收藏或清除站点数据删除。
+            </p>
+            <p>
+              点赞使用匿名浏览器 Cookie
+              识别你的点赞状态，并将匿名标识与作品编号保存在 Cloudflare
+              数据库中。作品点赞总数向所有访客公开；你可以再次点击红心取消点赞。清除浏览器站点数据会移除本机匿名标识，但不会自动撤销已提交的点赞。
             </p>
             <p>
               联系邮箱链接会打开你自己的邮件应用。只有主动发送邮件后，收件人才会收到你提供的信息。

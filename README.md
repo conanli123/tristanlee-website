@@ -16,18 +16,19 @@ npm run dev
 ## 页面和功能
 
 - 首页：8 个方形作品轮播，鼠标停留在两侧作品上会将其移至中央，支持鼠标拖动、触屏横滑、箭头与圆点切换、自动播放；四列作品、个人名片、动态、视觉札记、联系区和大字页脚。
-- 作品列表、16 个作品详情、分类筛选、中英文关键词搜索。
+- 作品列表、19 个作品详情、分类筛选、中英文关键词搜索。
 - 分类为 Lighting、Mini Theater、Game Demos、Art & Illustration；全部分类同排显示，窄屏可横向滚动。WORK 标题悬停或键盘聚焦时逐字填入不同颜色。
-- 本地收藏（localStorage）、个人介绍、新闻列表与文章、合作 FAQ、邮箱联系和隐私说明。
+- 本地收藏（localStorage）与公开点赞：星星保存本机收藏，爱心通过 Cloudflare Pages Functions + D1 保存共享点赞数，所有访客可以查看。匿名点赞无需登录。
+- 个人介绍、新闻列表与文章、合作 FAQ、邮箱联系和隐私说明。
 - 桌面、平板和手机布局，手机底部菜单，键盘操作及减少动态效果支持。
 - 名片随滚动倾斜转正、回弹和上下漂浮；页脚分层花束摇摆、人物漂浮和背景格纹移动，离开视口暂停。
 
-Lighting 的四件作品采用用户提供的 d1–d4 图片，分别展示酒馆室内、夜景摩天轮、日光遗迹和苔藓森林。其他 12 件仍使用 SVG 占位视觉，人物插画也是头像占位。占位项目不代表实际客户合作或个人项目经历；短片与游戏详情均显示待补充状态。此前的旧图片和视频保留在磁盘，页面和独立网页不再使用。
+Lighting 的七件作品采用用户提供的 d1–d7 图片，分别展示酒馆室内、夜景摩天轮、日光遗迹、苔藓森林、雨夜街区、日光客厅与山水楼阁。其他 12 件仍使用 SVG 占位视觉，人物插画也是头像占位。占位项目不代表实际客户合作或个人项目经历；短片与游戏详情均显示待补充状态。此前的旧图片和视频保留在磁盘，页面和独立网页不再使用。
 
 ## 更换内容
 
 - `src/data/site.ts`：姓名、职业、邮箱、作品、新闻及技能。
-- `public/works/lighting/d1.webp` 至 `d4.webp`：四张灯光作品，保留原图 1376×768 分辨率并压缩为 WebP；详情页按原始比例完整展示。四个年份按用户要求在 2019–2026 之间配置为不同展示年份，非从图片元数据推断。
+- `public/works/lighting/d1.webp` 至 `d7.webp`：七张灯光作品，保留原图 1376×768 分辨率并压缩为 WebP；详情页按原始比例完整展示。年份按用户要求在 2019–2026 之间配置为不同展示年份，非从图片元数据推断。
 - `public/placeholders/frame-01.svg` 至 `frame-16.svg`：现有占位视觉，可替换为真实作品；若换扩展名，同步修改 `image` 字段及验证脚本。
 - `src/App.tsx`：页面、组件、路由和交互。
 - `src/hooks/useProfileMotion.ts`：名片滚动动效。
@@ -35,6 +36,8 @@ Lighting 的四件作品采用用户提供的 d1–d4 图片，分别展示酒�
 - `public/animations/flowers/`：按复刻需求本地保存的原站花束图层；来源见该目录 `SOURCES.md`。
 - `src/index.css`：样式、响应式与动效。
 - `src/data/assetUrl.ts`：素材地址解析，兼容开发模式与独立网页。
+- `functions/`：公开点赞的 Cloudflare Pages API；`migrations/`：D1 数据库结构迁移。
+- `wrangler.jsonc`：Cloudflare Pages 输出目录与 D1 绑定配置，Wrangler 自动读取此默认文件。
 
 所有作品图通过 `assetUrl()` 读取。正式作品放在 `public/works/`，占位素材放在 `public/placeholders/`；单文件构建会自动内嵌这两个目录内支持的图片和视频。作品的 `isPlaceholder` 字段决定是否显示占位提示。个人信息沿用现有邮箱 `294080551@qq.com`。
 
@@ -47,6 +50,18 @@ npm run build         # TypeScript 检查 + 标准 Vite 构建，输出 dist/dev
 npm run build:single  # 内嵌脚本、样式和作品素材，校验并同步根目录 index.html
 ```
 
-`single-file/index.html` 和根目录 `index.html` 是相同的可直接打开的网页。字体通过 Google Fonts 加载；离线时使用系统字体。详情页面采用 hash 路由，无需服务器路由重写。
+`single-file/index.html` 和根目录 `index.html` 是相同的可直接打开的网页。图片和作品内容可离线查看，公开点赞需要运行 API 服务；字体通过 Google Fonts 加载，离线时使用系统字体。详情页面采用 hash 路由，无需服务器路由重写。
 
-部署配置与操作见 [README-DEPLOY.md](README-DEPLOY.md)。上传 GitHub 用于保存和更新项目；网站托管需按部署说明配置。
+## 本地测试点赞
+
+```sh
+npm run build:single
+npm run db:migrate:local
+npm run dev:api
+```
+
+以上在 http://localhost:8788 启动 Pages 预览和本地 D1。另开终端运行 `npm run dev`，Vite 会将 `/api` 转发到 `localhost:8788`，可在开发页面调试点赞。只运行 Vite 或直接打开 HTML 时，作品浏览与本地收藏仍可使用，但不会生成共享点赞数。本地数据库与线上数据库彼此独立。
+
+推送 GitHub `main` 后，Cloudflare Pages 自动执行 `npm run build:single`，发布 `single-file` 并编译根目录 `functions/`。根目录 `index.html` 仍作为生成的独立网页提交保存。生产环境绑定公开点赞数据库；云端 Preview 环境未绑定 D1，因此预览部署的点赞不可用，需另配预览数据库后启用。
+
+部署配置与操作见 [README-DEPLOY.md](README-DEPLOY.md)。

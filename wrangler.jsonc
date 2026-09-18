@@ -1,9 +1,19 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "tristanlee",
-  "compatibility_date": "2026-09-16",
-  "assets": {
-    "directory": "./single-file",
-    "not_found_handling": "single-page-application"
+  "compatibility_date": "2026-09-17",
+  "pages_build_output_dir": "./single-file",
+  "d1_databases": [
+    {
+      "binding": "LIKES_DB",
+      "database_name": "tristanlee-portfolio-likes",
+      "database_id": "a00a1158-d4f2-4774-b3d5-294a21846477",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "env": {
+    "preview": {
+      "d1_databases": []
+    }
   }
 }

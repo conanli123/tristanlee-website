@@ -640,7 +640,8 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
   gap: 9px;
   position: relative;
   margin-top: 17px;
-  padding-right: 34px;
+  padding-right: 0;
+  flex-wrap: wrap;
   font-size: 11px;
   font-weight: 500;
   min-height: 25px;
@@ -658,10 +659,65 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
   width: 34px;
   height: 34px;
 }
-.work-meta .favorite-button {
+.work-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+}
+.detail-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 18px;
+}
+.like-control {
+  position: relative;
+  display: inline-flex;
+}
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 4px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.like-button svg {
+  width: 20px;
+  height: 20px;
+  transition:
+    fill 0.18s,
+    transform 0.25s var(--ease),
+    color 0.18s;
+}
+.like-button:hover svg {
+  transform: scale(1.13);
+}
+.like-button.is-liked {
+  color: #dc3d51;
+}
+.like-button.is-liked svg {
+  fill: currentColor;
+}
+.like-button[aria-busy="true"] {
+  opacity: 0.65;
+}
+.like-error {
   position: absolute;
-  right: -3px;
-  top: -5px;
+  right: 0;
+  bottom: calc(100% + 5px);
+  padding: 7px 9px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 145px;
+  font-size: 10px;
+  line-height: 1.5;
+  z-index: 3;
 }
 .favorite-button svg {
   width: 22px;
@@ -2117,7 +2173,7 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
     font-size: 9px;
     gap: 6px;
     margin-top: 11px;
-    padding-right: 25px;
+    padding-right: 0;
     min-height: 23px;
   }
   .work-meta > span {
@@ -2134,9 +2190,21 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
     width: 19px;
     height: 19px;
   }
-  .work-meta .favorite-button {
-    right: -4px;
-    top: -3px;
+  .work-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 5px;
+  }
+  .like-button {
+    min-height: 29px;
+    font-size: 10px;
+  }
+  .like-button svg {
+    width: 18px;
+    height: 18px;
+  }
+  .detail-actions {
+    gap: 10px;
   }
   .work-title {
     font-size: 11px;

@@ -1,5 +1,11 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  readdirSync,
+  copyFileSync,
+} from "node:fs";
 import { join, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { verifySingle } from "./verify-single.mjs";
@@ -89,6 +95,7 @@ html = html.replace(
 
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "index.html"), html);
+copyFileSync(join(root, "_routes.json"), join(outDir, "_routes.json"));
 verifySingle(root);
 writeFileSync(join(root, "index.html"), html);
 console.log(
