@@ -124,6 +124,63 @@ test("default Lighting, filter refresh and detail return", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+for (const width of [1440, 390]) {
+  test(`home scroll shows the same Lighting carousel at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: width > 700 ? 1000 : 844 });
+    await page.goto("#/home", { waitUntil: "domcontentloaded" });
+    const workSection = page.locator("#work");
+    await workSection.scrollIntoViewIfNeeded();
+    await expect(page).toHaveURL(/#\/home$/);
+    await expect(
+      workSection.locator(".work-filters button.active"),
+    ).toContainText("Lighting");
+    await expect(workSection.locator(cards)).toHaveCount(13);
+    await expect(workSection.locator(".work-grid")).toHaveCount(0);
+    await page.locator(".depth-carousel").scrollIntoViewIfNeeded();
+    await pause(page);
+    await page.locator(next).click();
+    await expectCentered(page, 1);
+    const homeWidth = (await page.locator(`${cards}.is-active`).boundingBox())!
+      .width;
+    await workSection
+      .locator(".work-filters button")
+      .filter({ hasText: /^All/ })
+      .click();
+    await expect(workSection.locator(".work-card")).toHaveCount(25);
+    await expect(workSection.locator(".depth-carousel")).toHaveCount(0);
+    await workSection
+      .locator(".work-filters button")
+      .filter({ hasText: /^Lighting/ })
+      .click();
+    await expect(workSection.locator(cards)).toHaveCount(13);
+    await expect(workSection.locator(".work-grid")).toHaveCount(0);
+    await page.locator(".depth-carousel").scrollIntoViewIfNeeded();
+    await pause(page);
+    await page.locator(dots).nth(10).click();
+    await expectCentered(page, 10);
+    await page.locator(`${cards}.is-active`).click();
+    await expect(page.locator(".detail-heading h1")).toHaveText(
+      "小破孩之大状元电影",
+    );
+    await expect(page.locator(".detail-heading .eyebrow")).toContainText(
+      "2018",
+    );
+    if (width > 700) {
+      await page.locator('.desktop-nav a[href="#/work"]').click();
+    } else {
+      await page.goto("#/work", { waitUntil: "domcontentloaded" });
+    }
+    await expect(page.locator(cards)).toHaveCount(13);
+    await expect(page.locator(".work-grid")).toHaveCount(0);
+    await pause(page);
+    const workWidth = (await page.locator(`${cards}.is-active`).boundingBox())!
+      .width;
+    expect(Math.abs(workWidth - homeWidth)).toBeLessThan(1);
+  });
+}
+
 test("animated navigation stays centered through all dots, wraps and rapid clicks", async ({
   page,
 }) => {

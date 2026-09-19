@@ -464,7 +464,7 @@ function Works({
   selectedCategory?: string;
   onCategoryChange?: (category: string) => void;
 }) {
-  const [localCategory, setCategory] = useState("all");
+  const [localCategory, setCategory] = useState(savedOnly ? "all" : "lighting");
   const category = selectedCategory ?? localCategory;
   const worksRef = useRef<HTMLDivElement>(null);
   const toggleSaved = (id: string) => {
@@ -495,7 +495,7 @@ function Works({
   const visible = base.filter(
     (work) => category === "all" || work.group === category,
   );
-  const showLightingCarousel = full && !savedOnly && category === "lighting";
+  const showLightingCarousel = !savedOnly && category === "lighting";
   return (
     <section
       className={`section work-section ${full ? "page-section" : ""}`}
