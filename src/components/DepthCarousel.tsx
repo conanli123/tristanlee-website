@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type {
-  CSSProperties,
-  PointerEvent,
-  KeyboardEvent,
-  WheelEvent,
-} from "react";
+import type { CSSProperties, KeyboardEvent, PointerEvent } from "react";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import gsap from "gsap";
 import "./depth-carousel.css";
 
-export type DepthCarouselItem =
-  string | { image: string; alt?: string; label?: string };
+export type DepthCarouselItem = {
+  image: string;
+  alt?: string;
+  label?: string;
+  position?: string;
+};
 
-export type DepthCarouselProps = {
+type Props = {
   items: DepthCarouselItem[];
   cardWidth?: number;
   cardHeight?: number;
@@ -18,29 +19,24 @@ export type DepthCarouselProps = {
   depth?: number;
   spread?: number;
   tilt?: number;
-  tiltDirection?: "left" | "right";
   perspective?: number;
   visibleCards?: number;
   falloff?: number;
+  blur?: number;
   duration?: number;
-  loop?: boolean;
   autoplay?: boolean;
   autoplayDelay?: number;
-  showControls?: boolean;
-  showIndicators?: boolean;
-  onChange?: (index: number, item: DepthCarouselItem) => void;
-  onSelect?: (index: number, item: DepthCarouselItem) => void;
-  className?: string;
-  label?: string;
+  onChange?: (index: number) => void;
+  onSelect?: (index: number) => void;
 };
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
+const wrap = (value: number, count: number) =>
+  ((value % count) + count) % count;
 
-const normalise = (item: DepthCarouselItem) =>
-  typeof item === "string" ? { image: item, alt: "" } : item;
-
-/** A dependency-free depth stack inspired by React Bits' DepthCarousel. */
+// Adapted from the React Bits DepthCarousel source supplied by the owner.
+// GSAP animates one continuous position, keeping card transforms and selection in sync.
 export default function DepthCarousel({
   items,
   cardWidth = 420,
@@ -49,334 +45,466 @@ export default function DepthCarousel({
   depth = 230,
   spread = 120,
   tilt = 18,
-  tiltDirection = "right",
   perspective = 1200,
   visibleCards = 4,
   falloff = 0.18,
+  blur = 6,
   duration = 650,
-  loop = true,
-  autoplay = false,
-  autoplayDelay = 4500,
-  showControls = true,
-  showIndicators = true,
+  autoplay = true,
+  autoplayDelay = 3200,
   onChange,
   onSelect,
-  className = "",
-  label = "Lighting 作品翻页展示",
-}: DepthCarouselProps) {
-  const data = useMemo(
-    () => (Array.isArray(items) ? items : []).map(normalise),
+}: Props) {
+  const count = items.length;
+  const identity = useMemo(
+    () => items.map((item) => item.image).join("|"),
     [items],
   );
-  const count = data.length;
   const [active, setActive] = useState(0);
-  const [offset, setOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [reduced, setReduced] = useState(
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const reducedRef = useRef(reduced);
+  reducedRef.current = reduced;
   const rootRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{
-    x: number;
-    start: number;
+  const stageRef = useRef<HTMLDivElement>(null);
+  const cards = useRef<(HTMLButtonElement | null)[]>([]);
+  const shades = useRef<(HTMLSpanElement | null)[]>([]);
+  const position = useRef(0);
+  const focus = useRef(0);
+  const scale = useRef(1);
+  const tween = useRef<gsap.core.Tween | null>(null);
+  const wheelTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const interactionUntil = useRef(0);
+  const suppressClick = useRef(false);
+  const inView = useRef(false);
+  const pointerInside = useRef(false);
+  const drag = useRef<{
     id: number;
+    x: number;
+    y: number;
+    start: number;
     moved: boolean;
   } | null>(null);
-  const suppressClickRef = useRef(false);
-  const offsetRef = useRef(0);
-  const activeRef = useRef(0);
-  const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const changeRef = useRef(onChange);
+  changeRef.current = onChange;
+
+  const layout = useCallback(
+    (pos: number) => {
+      if (!count) return;
+      for (let index = 0; index < count; index++) {
+        const card = cards.current[index];
+        if (!card) continue;
+        let distance = wrap(index - pos, count);
+        if (distance > count / 2) distance -= count;
+        const back = Math.max(0, distance);
+        const visible = Math.abs(distance) <= visibleCards + 0.5;
+        const opacity = visible
+          ? distance < 0
+            ? Math.max(0, 1 + distance)
+            : 1
+          : 0;
+        const brightness = Math.max(0.15, 1 - back * falloff);
+        const blurPx = Math.min(
+          blur,
+          (back / Math.max(1, visibleCards)) * blur,
+        );
+        // Do not project fully hidden cards in front of the perspective plane.
+        const visualDistance = clamp(distance, -1, visibleCards + 1);
+        card.style.transform = `translate(-50%, -50%) scale(${scale.current}) translateX(${spread * visualDistance}px) translateZ(${-depth * visualDistance}px) rotateY(${tilt * clamp(distance, 0, 1)}deg)`;
+        card.style.opacity = String(opacity);
+        card.style.visibility = opacity > 0.001 ? "visible" : "hidden";
+        card.style.filter = `brightness(${brightness}) blur(${blurPx}px)`;
+        card.style.zIndex = String(Math.round(2000 - distance * 20));
+        card.style.pointerEvents = visible && opacity > 0.05 ? "auto" : "none";
+        if (shades.current[index])
+          shades.current[index]!.style.opacity = String(
+            clamp(back * falloff * 1.25, 0, 0.86),
+          );
+      }
+    },
+    [count, depth, spread, tilt, visibleCards, falloff, blur],
+  );
+
+  const setFocus = useCallback(
+    (rawIndex: number, animate = true) => {
+      if (!count) return;
+      clearTimeout(wheelTimer.current);
+      tween.current?.kill();
+      const index = wrap(Math.round(rawIndex), count);
+      let delta = wrap(index - position.current, count);
+      if (delta > count / 2) delta -= count;
+      const target = position.current + delta;
+      focus.current = index;
+      setActive(index);
+      changeRef.current?.(index);
+      if (!animate || reducedRef.current) {
+        position.current = index;
+        layout(index);
+        tween.current = null;
+        return;
+      }
+      const proxy = { value: position.current };
+      tween.current = gsap.to(proxy, {
+        value: target,
+        duration: duration / 1000,
+        ease: "power3.out",
+        onUpdate: () => {
+          position.current = proxy.value;
+          layout(proxy.value);
+        },
+        onComplete: () => {
+          position.current = index;
+          layout(index);
+          tween.current = null;
+        },
+      });
+    },
+    [count, duration, layout],
+  );
+
+  const manualFocus = useCallback(
+    (index: number) => {
+      interactionUntil.current = Date.now() + autoplayDelay;
+      setFocus(index);
+    },
+    [autoplayDelay, setFocus],
+  );
 
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReducedMotion(query.matches);
-    update();
-    query.addEventListener?.("change", update);
-    return () => query.removeEventListener?.("change", update);
+    const update = () => setReduced(query.matches);
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
   }, []);
 
   useEffect(() => {
-    if (active >= count && count) {
-      setActive(0);
-      activeRef.current = 0;
-    }
-  }, [active, count]);
+    const root = rootRef.current;
+    if (!root) return;
+    const resize = new ResizeObserver(([entry]) => {
+      scale.current = clamp(
+        entry.contentRect.width / (cardWidth + spread * 2 + 120),
+        0.3,
+        1,
+      );
+      layout(position.current);
+    });
+    resize.observe(root);
+    const intersection = new IntersectionObserver(
+      ([entry]) => {
+        inView.current =
+          entry.isIntersecting && entry.intersectionRatio >= 0.35;
+      },
+      { threshold: 0.35 },
+    );
+    intersection.observe(root);
+    return () => {
+      resize.disconnect();
+      intersection.disconnect();
+    };
+  }, [cardWidth, spread, layout]);
 
-  const wrap = useCallback(
-    (value: number) => {
-      if (!count) return 0;
-      if (!loop) return clamp(value, 0, count - 1);
-      return ((value % count) + count) % count;
+  useEffect(() => {
+    setFocus(0, false);
+    return () => {
+      tween.current?.kill();
+      clearTimeout(wheelTimer.current);
+    };
+  }, [identity, setFocus]);
+
+  useEffect(() => {
+    if (reduced) setFocus(focus.current, false);
+  }, [reduced, setFocus]);
+
+  useEffect(() => {
+    if (!autoplay || paused || reduced || count < 2) return;
+    const timer = window.setInterval(() => {
+      const root = rootRef.current;
+      if (
+        !root ||
+        !inView.current ||
+        document.hidden ||
+        pointerInside.current ||
+        root.contains(document.activeElement) ||
+        drag.current ||
+        Date.now() < interactionUntil.current
+      )
+        return;
+      setFocus(focus.current + 1);
+    }, autoplayDelay);
+    return () => clearInterval(timer);
+  }, [autoplay, paused, reduced, count, autoplayDelay, setFocus]);
+
+  useEffect(() => {
+    const stage = rootRef.current;
+    if (!stage || count < 2) return;
+    const wheel = (event: WheelEvent) => {
+      if (
+        event.ctrlKey ||
+        drag.current ||
+        (event.target as Element).closest(
+          ".depth-carousel__navigation, .depth-carousel__arrow",
+        )
+      )
+        return;
+      const raw =
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)
+          ? event.deltaX
+          : event.deltaY;
+      if (!raw) return;
+      event.preventDefault();
+      tween.current?.kill();
+      interactionUntil.current = Date.now() + autoplayDelay;
+      const delta =
+        event.deltaMode === 1
+          ? raw * 24
+          : event.deltaMode === 2
+            ? raw * stage.clientHeight
+            : raw;
+      position.current += clamp(
+        delta / (cardWidth * 0.9 * scale.current),
+        -0.6,
+        0.6,
+      );
+      layout(position.current);
+      clearTimeout(wheelTimer.current);
+      wheelTimer.current = setTimeout(
+        () => setFocus(Math.round(position.current)),
+        130,
+      );
+    };
+    stage.addEventListener("wheel", wheel, { passive: false });
+    return () => {
+      stage.removeEventListener("wheel", wheel);
+      clearTimeout(wheelTimer.current);
+    };
+  }, [count, cardWidth, layout, setFocus, autoplayDelay]);
+
+  const endDrag = useCallback(
+    (cancelled = false) => {
+      const gesture = drag.current;
+      if (!gesture) return;
+      drag.current = null;
+      setDragging(false);
+      if (gesture.moved) {
+        suppressClick.current = true;
+        manualFocus(cancelled ? focus.current : Math.round(position.current));
+      } else if (Math.abs(position.current - focus.current) > 0.001) {
+        setFocus(focus.current);
+      }
+      if (rootRef.current?.hasPointerCapture(gesture.id))
+        rootRef.current.releasePointerCapture(gesture.id);
     },
-    [count, loop],
-  );
-
-  const commit = useCallback(
-    (raw: number, animate = true) => {
-      if (!count) return;
-      const next = wrap(Math.round(raw));
-      const current = activeRef.current;
-      let delta = next - current;
-      if (loop && count > 1) {
-        delta = ((delta % count) + count) % count;
-        if (delta > count / 2) delta -= count;
-      }
-      // Pointer and wheel gestures can leave a fractional offset. Snap that
-      // offset directly; button/dot navigation keeps an unwrapped integer so
-      // looping from the last card to the first remains a short transition.
-      const rounded = Math.round(raw);
-      const settlingGesture = Math.abs(raw - rounded) > 0.001;
-      const target = settlingGesture ? rounded : rounded + delta;
-      offsetRef.current = target;
-      setOffset(target);
-      activeRef.current = next;
-      if (next !== current) {
-        setActive(next);
-        onChange?.(next, data[next]);
-      }
-      if (!animate || reducedMotion) {
-        requestAnimationFrame(() => {
-          const normal = wrap(offsetRef.current);
-          offsetRef.current = normal;
-          setOffset(normal);
-        });
-      }
-    },
-    [count, data, loop, onChange, reducedMotion, wrap],
-  );
-
-  const navigate = useCallback(
-    (step: number) => commit(activeRef.current + step),
-    [commit],
+    [manualFocus, setFocus],
   );
 
   useEffect(() => {
-    if (!autoplay || reducedMotion || count < 2) return;
-    const root = rootRef.current;
-    let paused = false;
-    const pause = () => {
-      paused = true;
-    };
-    const resume = () => {
-      paused = false;
-    };
-    const timer = window.setInterval(
-      () => {
-        if (!paused && !dragRef.current) navigate(1);
-      },
-      Math.max(1200, autoplayDelay),
-    );
-    root?.addEventListener("mouseenter", pause);
-    root?.addEventListener("mouseleave", resume);
-    root?.addEventListener("focusin", pause);
-    root?.addEventListener("focusout", resume);
+    const release = () => endDrag();
+    const cancel = () => endDrag(true);
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", cancel);
+    window.addEventListener("blur", cancel);
     return () => {
-      window.clearInterval(timer);
-      root?.removeEventListener("mouseenter", pause);
-      root?.removeEventListener("mouseleave", resume);
-      root?.removeEventListener("focusin", pause);
-      root?.removeEventListener("focusout", resume);
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", cancel);
+      window.removeEventListener("blur", cancel);
     };
-  }, [autoplay, autoplayDelay, count, navigate, reducedMotion]);
+  }, [endDrag]);
 
-  useEffect(
-    () => () => {
-      if (snapTimer.current) clearTimeout(snapTimer.current);
-    },
-    [],
-  );
-
-  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (count < 2) return;
-    // Keep arrows and indicators clickable without the stage capturing their pointer.
+  const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (
-      (event.target as HTMLElement).closest(
-        ".depth-carousel__arrow, .depth-carousel__dots",
-      )
+      count < 2 ||
+      (event.target as Element).closest(
+        ".depth-carousel__navigation, .depth-carousel__arrow",
+      ) ||
+      !event.isPrimary ||
+      event.button !== 0 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey ||
+      event.shiftKey
     )
       return;
-    // A deliberate new pointer gesture should always be allowed to select a card.
-    suppressClickRef.current = false;
-    snapTimer.current && clearTimeout(snapTimer.current);
-    dragRef.current = {
-      x: event.clientX,
-      start: offsetRef.current,
+    suppressClick.current = false;
+    clearTimeout(wheelTimer.current);
+    tween.current?.kill();
+    interactionUntil.current = Date.now() + autoplayDelay;
+    drag.current = {
       id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      start: position.current,
       moved: false,
     };
-    setDragging(true);
   };
-  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    const dx = event.clientX - drag.x;
-    if (Math.abs(dx) > 5) {
-      if (!drag.moved) rootRef.current?.setPointerCapture(event.pointerId);
-      drag.moved = true;
+
+  const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const gesture = drag.current;
+    if (!gesture || gesture.id !== event.pointerId) return;
+    const dx = event.clientX - gesture.x;
+    const dy = event.clientY - gesture.y;
+    if (!gesture.moved) {
+      if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) {
+        endDrag(true);
+        return;
+      }
+      if (Math.abs(dx) <= 6) return;
+      gesture.moved = true;
+      rootRef.current?.setPointerCapture(event.pointerId);
+      setDragging(true);
     }
-    const stepPx = Math.max(cardWidth * 0.58, 90);
-    const next = drag.start - dx / stepPx;
-    offsetRef.current = next;
-    setOffset(next);
+    position.current =
+      gesture.start - dx / Math.max(cardWidth * 0.55 * scale.current, 40);
+    layout(position.current);
   };
-  const onPointerUp = () => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    dragRef.current = null;
-    setDragging(false);
-    if (drag.moved) {
-      suppressClickRef.current = true;
-      window.setTimeout(() => {
-        suppressClickRef.current = false;
-      }, 0);
-      commit(offsetRef.current);
-    }
-  };
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      navigate(-1);
-    } else if (event.key === "ArrowRight") {
-      event.preventDefault();
-      navigate(1);
-    } else if (event.key === "Home") {
-      event.preventDefault();
-      commit(0);
-    } else if (event.key === "End") {
-      event.preventDefault();
-      commit(count - 1);
-    }
-  };
-  const onWheel = (event: WheelEvent<HTMLDivElement>) => {
-    if (count < 2 || (Math.abs(event.deltaY) < 2 && Math.abs(event.deltaX) < 2))
-      return;
+
+  const keyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const index =
+      event.key === "ArrowLeft"
+        ? focus.current - 1
+        : event.key === "ArrowRight"
+          ? focus.current + 1
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? count - 1
+              : undefined;
+    if (index === undefined) return;
     event.preventDefault();
-    const delta =
-      Math.abs(event.deltaX) > Math.abs(event.deltaY)
-        ? event.deltaX
-        : event.deltaY;
-    offsetRef.current += clamp(
-      delta / Math.max(cardWidth * 1.1, 180),
-      -0.55,
-      0.55,
-    );
-    setOffset(offsetRef.current);
-    if (snapTimer.current) clearTimeout(snapTimer.current);
-    snapTimer.current = setTimeout(() => commit(offsetRef.current), 120);
+    suppressClick.current = false;
+    manualFocus(index);
   };
 
   return (
     <div
       ref={rootRef}
-      className={`depth-carousel ${dragging ? "is-dragging" : ""} ${className}`.trim()}
-      style={
-        {
-          "--dc-perspective": `${perspective}px`,
-          "--dc-duration": `${reducedMotion ? 0 : duration}ms`,
-        } as CSSProperties
-      }
-      role="group"
+      className={`depth-carousel ${dragging ? "is-dragging" : ""}`}
+      role="region"
       aria-roledescription="carousel"
-      aria-label={label}
+      aria-label="Lighting 作品翻页展示"
       tabIndex={0}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
-      onWheel={onWheel}
-      onKeyDown={onKeyDown}
+      style={{ "--dc-perspective": `${perspective}px` } as CSSProperties}
+      onKeyDown={keyDown}
+      onPointerDown={pointerDown}
+      onPointerMove={pointerMove}
+      onPointerUp={() => endDrag()}
+      onPointerCancel={() => endDrag(true)}
+      onLostPointerCapture={(event) => {
+        // Touch buttons initially capture the pointer; transferring it to the
+        // carousel must not cancel the gesture when that child loses capture.
+        if (event.target === event.currentTarget) endDrag(true);
+      }}
+      onMouseEnter={() => {
+        pointerInside.current = true;
+      }}
+      onMouseLeave={() => {
+        pointerInside.current = false;
+      }}
     >
-      <div className="depth-carousel__stage">
-        {data.map((item, index) => {
-          let distance = index - offset;
-          if (loop && count > 1) {
-            distance = ((distance % count) + count) % count;
-            if (distance > count / 2) distance -= count;
-          }
-          const behind = Math.max(0, distance);
-          const visible = Math.abs(distance) <= visibleCards + 0.5;
-          const direction = tiltDirection === "left" ? -1 : 1;
-          const opacity = visible
-            ? distance < 0
-              ? Math.max(0, 1 + distance)
-              : 1
-            : 0;
-          const brightness = Math.max(0.15, 1 - behind * falloff);
-          const transform = `translate(-50%, -50%) translateX(${(direction * spread * distance).toFixed(2)}px) translateZ(${(-depth * distance).toFixed(2)}px) rotateY(${(direction * tilt * clamp(distance, 0, 1)).toFixed(2)}deg)`;
-          return (
-            <button
-              type="button"
-              className={`depth-carousel__card ${active === index ? "is-active" : ""}`}
-              key={`${item.image}-${index}`}
-              style={{
-                width: cardWidth,
-                height: cardHeight,
-                borderRadius: radius,
-                transform,
-                opacity,
-                filter: `brightness(${brightness.toFixed(3)}) blur(${Math.min(6, behind * falloff * 2).toFixed(2)}px)`,
-                zIndex: Math.round(2000 - distance * 20),
-                pointerEvents: visible && opacity > 0.05 ? "auto" : "none",
+      <div className="depth-carousel__stage" ref={stageRef}>
+        {items.map((item, index) => (
+          <button
+            key={index}
+            ref={(element) => {
+              cards.current[index] = element;
+            }}
+            type="button"
+            className={`depth-carousel__card ${active === index ? "is-active" : ""}`}
+            style={{
+              width: cardWidth,
+              height: cardHeight,
+              borderRadius: radius,
+            }}
+            aria-label={`${item.label || item.alt || `作品 ${index + 1}`}，${active === index ? "查看作品" : "移到前方"}`}
+            aria-current={active === index ? "true" : undefined}
+            tabIndex={active === index ? 0 : -1}
+            onClick={(event) => {
+              if (event.detail > 0 && suppressClick.current) {
+                suppressClick.current = false;
+                return;
+              }
+              if (drag.current?.moved) return;
+              if (
+                index === focus.current &&
+                Math.abs(position.current - index) < 0.01
+              )
+                onSelect?.(index);
+              else manualFocus(index);
+            }}
+          >
+            <img
+              src={item.image}
+              alt={item.alt || ""}
+              style={{ objectPosition: item.position }}
+              draggable={false}
+            />
+            <span
+              className="depth-carousel__tint"
+              ref={(element) => {
+                shades.current[index] = element;
               }}
-              aria-label={item.alt || `第 ${index + 1} 件 Lighting 作品`}
-              aria-current={active === index ? "true" : undefined}
-              tabIndex={active === index ? 0 : -1}
-              onClick={() => {
-                if (!dragRef.current && !suppressClickRef.current) {
-                  commit(index);
-                  onSelect?.(index, data[index]);
-                }
-              }}
-            >
-              <img src={item.image} alt={item.alt || ""} draggable={false} />
-              {item.label && (
-                <span className="depth-carousel__label">{item.label}</span>
-              )}
-              <span className="depth-carousel__shade" aria-hidden="true" />
-            </button>
-          );
-        })}
+              aria-hidden="true"
+            />
+          </button>
+        ))}
       </div>
-      {showControls && count > 1 && (
+      {count > 1 && (
         <>
           <button
             type="button"
             className="depth-carousel__arrow depth-carousel__arrow--prev"
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => navigate(-1)}
+            title="上一件作品"
             aria-label="上一件 Lighting 作品"
+            onClick={() => manualFocus(focus.current - 1)}
           >
-            ‹
+            <ChevronLeft size={20} />
           </button>
           <button
             type="button"
             className="depth-carousel__arrow depth-carousel__arrow--next"
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => navigate(1)}
+            title="下一件作品"
             aria-label="下一件 Lighting 作品"
+            onClick={() => manualFocus(focus.current + 1)}
           >
-            ›
+            <ChevronRight size={20} />
           </button>
         </>
       )}
-      {showIndicators && count > 1 && (
+      <div className="depth-carousel__navigation">
         <div
           className="depth-carousel__dots"
-          role="tablist"
-          aria-label="Lighting 作品"
+          role="group"
+          aria-label="选择 Lighting 作品"
         >
-          {data.map((item, index) => (
+          {items.map((item, index) => (
             <button
-              key={`${item.image}-dot`}
+              key={index}
               type="button"
-              role="tab"
-              aria-selected={active === index}
-              aria-label={`查看第 ${index + 1} 件作品`}
-              className={active === index ? "is-active" : ""}
-              onPointerDown={(event) => event.stopPropagation()}
-              onClick={() => commit(index)}
+              className={`depth-carousel__dot ${active === index ? "is-active" : ""}`}
+              aria-label={`查看第 ${index + 1} 件作品：${item.label || ""}`}
+              title={item.label}
+              aria-current={active === index ? "true" : undefined}
+              onClick={() => manualFocus(index)}
             />
           ))}
         </div>
-      )}
+        {autoplay && !reduced && count > 1 && (
+          <button
+            type="button"
+            className="depth-carousel__play"
+            title={paused ? "开启自动播放" : "暂停自动播放"}
+            aria-label={paused ? "开启自动播放" : "暂停自动播放"}
+            aria-pressed={paused}
+            onClick={() => setPaused((value) => !value)}
+          >
+            {paused ? <Play size={16} /> : <Pause size={16} />}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

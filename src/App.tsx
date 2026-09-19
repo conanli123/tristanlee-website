@@ -454,13 +454,18 @@ function Works({
   toggle,
   savedOnly = false,
   full = false,
+  selectedCategory,
+  onCategoryChange,
 }: {
   favorites: string[];
   toggle: (id: string) => void;
   savedOnly?: boolean;
   full?: boolean;
+  selectedCategory?: string;
+  onCategoryChange?: (category: string) => void;
 }) {
-  const [category, setCategory] = useState("all");
+  const [localCategory, setCategory] = useState("all");
+  const category = selectedCategory ?? localCategory;
   const worksRef = useRef<HTMLDivElement>(null);
   const toggleSaved = (id: string) => {
     const buttons = Array.from(
@@ -490,7 +495,6 @@ function Works({
   const visible = base.filter(
     (work) => category === "all" || work.group === category,
   );
-  const lightingWorks = base.filter((work) => work.group === "lighting");
   return (
     <section
       className={`section work-section ${full ? "page-section" : ""}`}
@@ -513,7 +517,11 @@ function Works({
               key={item.id}
               className={category === item.id ? "active" : ""}
               aria-pressed={category === item.id}
-              onClick={() => setCategory(item.id)}
+              onClick={() =>
+                onCategoryChange
+                  ? onCategoryChange(item.id)
+                  : setCategory(item.id)
+              }
               title={item.zh}
             >
               {item.en}{" "}
@@ -532,35 +540,8 @@ function Works({
         <p className="work-category-caption" aria-live="polite">
           {categories.find((item) => item.id === category)?.description}
         </p>
-        {full && category === "lighting" && lightingWorks.length > 1 && (
-          <div className="lighting-depth-feature">
-            <div className="lighting-depth-copy">
-              <span className="eyebrow">DEPTH / LIGHTING STUDIES</span>
-              <p>沿着光线的层次翻阅每一幅场景。</p>
-            </div>
-            <DepthCarousel
-              items={lightingWorks.map((work) => ({
-                image: assetUrl(work.image),
-                alt: work.imageAlt ?? work.title,
-                label: `${work.title} · ${work.year}`,
-              }))}
-              cardWidth={420}
-              cardHeight={320}
-              depth={230}
-              spread={120}
-              tilt={18}
-              perspective={1200}
-              visibleCards={4}
-              falloff={0.18}
-              duration={650}
-              radius={19}
-              showIndicators
-              onSelect={(index) => {
-                const selected = lightingWorks[index];
-                if (selected) window.location.hash = `#/work/${selected.id}`;
-              }}
-            />
-          </div>
+        {full && !savedOnly && category === "lighting" && (
+          <LightingShowcase favorites={favorites} toggle={toggle} />
         )}
         <div ref={worksRef}>
           <div className="work-grid">
@@ -582,7 +563,7 @@ function Works({
                   : "这个分类暂时没有作品。"}
               </h3>
               <p>点击作品旁的星标，即可收藏。</p>
-              <LineLink href="#/work" zh="浏览全部作品">
+              <LineLink href="#/work?category=all" zh="浏览全部作品">
                 EXPLORE WORK
               </LineLink>
             </div>
@@ -592,12 +573,70 @@ function Works({
           <p className="placeholder-note">{site.workNotice}</p>
         )}
         {!full && (
-          <LineLink href="#/work" zh="浏览全部作品" className="center-link">
+          <LineLink
+            href="#/work?category=all"
+            zh="浏览全部作品"
+            className="center-link"
+          >
             VIEW ALL
           </LineLink>
         )}
       </Reveal>
     </section>
+  );
+}
+const lightingWorks = works.filter((work) => work.group === "lighting");
+const lightingSlides = lightingWorks.map((work) => ({
+  image: assetUrl(work.image),
+  alt: work.imageAlt ?? work.title,
+  label: work.title,
+  position: work.imagePosition,
+}));
+
+function LightingShowcase({
+  favorites,
+  toggle,
+}: {
+  favorites: string[];
+  toggle: (id: string) => void;
+}) {
+  const [active, setActive] = useState(0);
+  const work = lightingWorks[active];
+  if (!work) return null;
+  const favorite = favorites.includes(work.id);
+  return (
+    <div className="lighting-depth-feature">
+      <DepthCarousel
+        items={lightingSlides}
+        autoplay
+        onChange={setActive}
+        onSelect={(index) => {
+          window.location.hash = `#/work/${lightingWorks[index].id}`;
+        }}
+      />
+      <div className="lighting-depth-caption">
+        <div>
+          <a className="work-title" href={`#/work/${work.id}`}>
+            {work.title}
+            <span>{work.titleEn}</span>
+          </a>
+          <p>
+            {work.category} / <time>{work.year}</time>
+          </p>
+        </div>
+        <div className="work-actions">
+          <LikeButton id={work.id} title={work.title} />
+          <button
+            className={`favorite-button ${favorite ? "selected" : ""}`}
+            aria-label={`${favorite ? "取消收藏" : "收藏"}${work.title}`}
+            aria-pressed={favorite}
+            onClick={() => toggle(work.id)}
+          >
+            <Icon name="star" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 function ProfileCard() {
@@ -858,7 +897,7 @@ function WorkDetail({
   const next = works[(works.indexOf(work) + 1) % works.length];
   return (
     <section className="section page-section work-detail">
-      <a href="#/work" className="breadcrumb">
+      <a href={`#/work?category=${work.group}`} className="breadcrumb">
         WORK / {work.titleEn}
       </a>
       <div className="detail-heading">
@@ -1014,9 +1053,14 @@ function Footer() {
 }
 type Overlay = "menu" | "search" | null;
 export default function App() {
-  const [route, setRoute] = useState(
+  const [rawRoute, setRoute] = useState(
     () => window.location.hash.replace(/^#\/?/, "") || "home",
   );
+  const [route, routeQuery = ""] = rawRoute.split("?");
+  const categoryParam = new URLSearchParams(routeQuery).get("category");
+  const workCategory = workCategories.some((item) => item.id === categoryParam)
+    ? categoryParam!
+    : "lighting";
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -1183,7 +1227,15 @@ export default function App() {
           </>
         ) : route === "work" ? (
           <>
-            <Works favorites={favorites} toggle={toggle} full />
+            <Works
+              favorites={favorites}
+              toggle={toggle}
+              full
+              selectedCategory={workCategory}
+              onCategoryChange={(category) => {
+                window.location.hash = `#/work?category=${category}`;
+              }}
+            />
             <Contact />
           </>
         ) : route === "favorites" ? (

@@ -7,3 +7,5 @@ single-file/
 *.log
 *.tsbuildinfo
 .DS_Store
+test-results/
+playwright-report/
