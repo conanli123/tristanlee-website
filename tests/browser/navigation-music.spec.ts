@@ -112,7 +112,10 @@ test("real audio playback, seek, shuffle, track selection and route continuity",
   await page.getByRole("button", { name: "取消静音", exact: true }).click();
   await page.getByRole("slider", { name: "播放进度", exact: true }).fill("15");
   await expect
-    .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime))
+    .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime), {
+      // A cold CDN response may need to buffer the track before seeking.
+      timeout: 15_000,
+    })
     .toBeGreaterThanOrEqual(15);
   await page.locator(".music-play-button").click();
   await expect
