@@ -33,7 +33,7 @@ test.beforeEach(async ({ page }) => {
 
 async function openLighting(page: Page) {
   await page.goto("#/work", { waitUntil: "domcontentloaded" });
-  await expect(page.locator(cards)).toHaveCount(13);
+  await expect(page.locator(cards)).toHaveCount(lightingWorks.length);
   await expect(page.locator(".work-grid")).toHaveCount(0);
   await page.locator(".depth-carousel").scrollIntoViewIfNeeded();
   await expect(page.locator(`${cards}.is-active`)).toBeVisible();
@@ -101,7 +101,7 @@ test("default Lighting, filter refresh and detail return", async ({ page }) => {
     .locator(".work-filters button")
     .filter({ hasText: /^All/ })
     .click();
-  await expect(page.locator(".work-grid .work-card")).toHaveCount(25);
+  await expect(page.locator(".work-grid .work-card")).toHaveCount(works.length);
   await expect(page.locator(".depth-carousel")).toHaveCount(0);
   await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.locator(".work-filters button.active")).toContainText(
@@ -136,7 +136,7 @@ for (const width of [1440, 390]) {
     await expect(
       workSection.locator(".work-filters button.active"),
     ).toContainText("Lighting");
-    await expect(workSection.locator(cards)).toHaveCount(13);
+    await expect(workSection.locator(cards)).toHaveCount(lightingWorks.length);
     await expect(workSection.locator(".work-grid")).toHaveCount(0);
     await page.locator(".depth-carousel").scrollIntoViewIfNeeded();
     await pause(page);
@@ -148,13 +148,13 @@ for (const width of [1440, 390]) {
       .locator(".work-filters button")
       .filter({ hasText: /^All/ })
       .click();
-    await expect(workSection.locator(".work-card")).toHaveCount(25);
+    await expect(workSection.locator(".work-card")).toHaveCount(works.length);
     await expect(workSection.locator(".depth-carousel")).toHaveCount(0);
     await workSection
       .locator(".work-filters button")
       .filter({ hasText: /^Lighting/ })
       .click();
-    await expect(workSection.locator(cards)).toHaveCount(13);
+    await expect(workSection.locator(cards)).toHaveCount(lightingWorks.length);
     await expect(workSection.locator(".work-grid")).toHaveCount(0);
     await page.locator(".depth-carousel").scrollIntoViewIfNeeded();
     await pause(page);
@@ -172,7 +172,7 @@ for (const width of [1440, 390]) {
     } else {
       await page.goto("#/work", { waitUntil: "domcontentloaded" });
     }
-    await expect(page.locator(cards)).toHaveCount(13);
+    await expect(page.locator(cards)).toHaveCount(lightingWorks.length);
     await expect(page.locator(".work-grid")).toHaveCount(0);
     await pause(page);
     const workWidth = (await page.locator(`${cards}.is-active`).boundingBox())!
@@ -197,21 +197,21 @@ test("animated navigation stays centered through all dots, wraps and rapid click
   expect(opacity).toBeGreaterThan(0);
   expect(opacity).toBeLessThan(1);
   await expectCentered(page, 1);
-  for (let index = 0; index < 13; index++) {
+  for (let index = 0; index < lightingWorks.length; index++) {
     await page.locator(dots).nth(index).click();
     await expectCentered(page, index);
   }
   await page.locator(next).click();
   await expectCentered(page, 0);
   await page.locator(previous).click();
-  await expectCentered(page, 12);
+  await expectCentered(page, lightingWorks.length - 1);
   await page.locator(next).click({ clickCount: 3, delay: 35 });
   await expectCentered(page, 2);
   await page.locator(".depth-carousel").focus();
   await page.keyboard.press("Home");
   await expectCentered(page, 0);
   await page.keyboard.press("End");
-  await expectCentered(page, 12);
+  await expectCentered(page, lightingWorks.length - 1);
 });
 
 test("drag and wheel navigate without accidental detail clicks or page scrolling", async ({

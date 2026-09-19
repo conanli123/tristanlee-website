@@ -138,23 +138,27 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     } else
       select((indexRef.current - 1 + musicTracks.length) % musicTracks.length);
   }, [select, play]);
+  const pause = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    request.current++;
+    needsGesture.current = false;
+    audio.pause();
+    seekAbort.current?.abort();
+    pendingSeek.current = null;
+    setEnabled(false);
+    setBlocked(false);
+    setLoading(false);
+  }, []);
   const toggle = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (!audio.paused) {
-      request.current++;
-      needsGesture.current = false;
-      audio.pause();
-      seekAbort.current?.abort();
-      pendingSeek.current = null;
-      setEnabled(false);
-      setBlocked(false);
-      setLoading(false);
-    } else {
+    if (!audio.paused) pause();
+    else {
       setEnabled(true);
       void play();
     }
-  }, [play]);
+  }, [pause, play]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -275,10 +279,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       setEnabled(true);
       void play();
     });
-    session.setActionHandler("pause", () => {
-      audioRef.current?.pause();
-      setEnabled(false);
-    });
+    session.setActionHandler("pause", pause);
     session.setActionHandler("nexttrack", next);
     session.setActionHandler("previoustrack", previous);
     return () => {
@@ -290,7 +291,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       ] as const)
         session.setActionHandler(action, null);
     };
-  }, [index, playing, play, next, previous]);
+  }, [index, playing, play, pause, next, previous]);
 
   return (
     <MusicContext.Provider
@@ -309,6 +310,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         shuffle,
         select,
         toggle,
+        pause,
         next,
         previous,
         seek,

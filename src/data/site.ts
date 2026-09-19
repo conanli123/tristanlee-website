@@ -1,4 +1,4 @@
-// Lighting 已更新为用户提供的 13 张场景作品，其余 12 个案例仍为版式展示占位。
+// Lighting 已更新为用户提供的 17 张场景与角色作品，其余 12 个案例仍为版式展示占位。
 export const site = {
   name: "TristanLee",
   chineseName: "李天纯",
@@ -14,9 +14,9 @@ export const site = {
   profileBody:
     "从场景灯光与角色渲染，到镜头合成与材质研究，我关注画面中每一层光影的关系。这里将整理我的视觉探索与作品，让过程和最终画面一起被看见。",
   workNotice:
-    "Lighting 收录十三幅场景光影作品；其余 12 个视频、游戏与插画案例目前为展示占位，内容将陆续更新。",
+    "Lighting 收录十七幅场景与角色光影作品；其余 12 个视频、游戏与插画案例目前为展示占位，内容将陆续更新。",
   workNoticeEn:
-    "Lighting features thirteen environment artworks. The remaining 12 film, game and illustration entries are placeholders, with more work to follow.",
+    "Lighting features seventeen environment and character artworks. The remaining 12 film, game and illustration entries are placeholders, with more work to follow.",
 };
 
 export type WorkKind = "image" | "video" | "game";
@@ -108,7 +108,7 @@ function placeholder(input: PlaceholderInput): Work {
   };
 }
 
-// Lighting 年份按用户要求在 2019–2026 年间分散设置，为展示年份，非图片元数据。
+// Lighting 未指定的年份按用户要求在 2019–2026 年间分散设置；指定年份沿用用户信息，非图片元数据。
 export const works: Work[] = [
   {
     id: "luminous-ruins",
@@ -558,6 +558,102 @@ export const works: Work[] = [
     ],
     credit: "游戏场景灯光作品 / GAME ENVIRONMENT LIGHTING",
   },
+  {
+    id: "monster-hunter",
+    index: "26",
+    category: "游戏影视灯光",
+    categoryEn: "GAME CINEMATIC LIGHTING",
+    title: "怪物猎人",
+    titleEn: "MONSTER HUNTER",
+    year: "2016",
+    image: "works/lighting/d15.webp",
+    imageAlt:
+      "蓝天下的沙地战场，巨兽张口扑向前景猎人，扬起的尘土包围木桶与铠甲。A roaring wyvern lunges toward an armored hunter through sunlit dust, with wooden barrels in the foreground.",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "《怪物猎人》的战斗画面中，巨兽从明亮天空下俯冲而来，张开的双翼与利齿占据画面上方。前景猎人、武器与木桶形成低机位视角，翻涌沙尘把双方之间的距离与瞬间冲击力连接起来。",
+    details: [
+      "强烈日光沿着巨兽翼缘与颈部勾出金色亮边，前景猎人的背部保留较深阴影，与湛蓝天空形成鲜明的明暗对照。透过尘雾的暖光柔化远处轮廓，让巨兽的头部与张开的口部成为视觉焦点。",
+      "木桶的金属箍、磨损木纹与猎人的铠甲呈现不同尺度的高光和粗糙度。近景遮挡、巨兽前冲的姿态与悬浮尘土共同建立强烈纵深，保留游戏影视镜头的紧张感。",
+      "A Monster Hunter cinematic frame built around a charging wyvern and a hunter seen from a low angle. Hard sunlight traces the creature's wings, while warm airborne dust separates the action from the blue sky. Barrel hardware, worn timber and shaded armor anchor the foreground and emphasize the impact of the encounter.",
+    ],
+    credit: "游戏影视灯光作品 · 2016 / GAME CINEMATIC LIGHTING · 2016",
+  },
+  {
+    id: "violet-camper-night",
+    index: "27",
+    category: "角色与场景灯光",
+    categoryEn: "CHARACTER & INTERIOR LIGHTING",
+    title: "星夜旅居",
+    titleEn: "STARRY CAMPER NIGHT",
+    year: "2025",
+    image: "works/lighting/d16.webp",
+    imageAlt:
+      "紫色露营灯照亮房车卧铺与粉发角色，窗外蓝色森林中闪烁着点点萤光，书籍与玩偶围绕床铺。A pink-haired character sits on a camper bed under violet lantern light, surrounded by books and toys, with a blue forest outside.",
+    imagePosition: "57% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "夜色中的房车卧铺被一盏紫色露营灯轻轻点亮，粉发角色坐在铺有条纹枕垫的床上。书籍、花束与小玩偶围绕着这一处旅途中的私人空间，窗外蓝色森林与点点萤光让室内显得温柔而安静。",
+    details: [
+      "窗外的冷蓝夜光铺开环境基调，床边灯具的紫色光晕则染亮床单、木柜和角色边缘。脸部与发丝保留柔和的偏暖亮部，在蓝紫环境中建立自然的肤色对比与清晰焦点。",
+      "倾斜的窗框、床沿与角色姿态构成流动的画面线条，织物、头发与灯具外壳分别呈现柔软、细腻和明亮的材质响应。近处粉紫色床铺与远处深蓝林景形成冷暖和距离的双重层次。",
+      "A quiet camper interior framed by blue woodland at night. A violet lantern casts soft color across the bedding and cabinetry, while warmer highlights preserve the character's face and pink hair. Books, flowers and small toys give the scene an intimate sense of life on the road.",
+    ],
+    credit: "角色与场景灯光作品 / CHARACTER & INTERIOR LIGHTING",
+  },
+  {
+    id: "boonie-bears",
+    index: "28",
+    category: "动画影视灯光",
+    categoryEn: "ANIMATED CINEMATIC LIGHTING",
+    title: "熊出没",
+    titleEn: "BOONIE BEARS",
+    year: "2024",
+    image: "works/lighting/d17.webp",
+    imageAlt:
+      "熊大、熊二与光头强藏在覆苔岩石后，巨大的毛茸茸蜘蛛伏在上方，阳光穿过茂密叶片洒入微观森林。Briar, Bramble and Vick shelter behind a mossy rock as a giant furry spider approaches through a sunlit forest of oversized leaves.",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "《熊出没》的森林画面里，熊大、熊二与光头强躲在覆满青苔的岩石后，一只巨大的毛茸茸蜘蛛从上方探近。放大的叶片、花茎与落叶把角色置于微观世界，阳光照亮林间空气，形成充满冒险感的动画瞬间。",
+    details: [
+      "上方透入的暖色日光勾亮蜘蛛的毛发与叶片边缘，背景呈现通透的黄绿色；岩石下方与角色所在位置保留柔和阴影，让躲藏中的人物与明亮的巨大生物形成明确层次。",
+      "前景岩石、苔藓和枯叶保留细致纹理，蜘蛛的绒毛通过逆光形成蓬松轮廓。高处的大体量生物与左下方小尺度角色构成对比，视线沿着岩石斜面自然连接双方。",
+      "Briar, Bramble and Vick hide beneath a moss-covered rock while a giant furry spider peers over them. Warm sunlight picks out the spider's fur and translucent leaf edges, contrasting with the sheltered characters below. Oversized foliage and detailed moss establish the scale of this miniature forest adventure.",
+    ],
+    credit: "动画影视灯光作品 · 2024 / ANIMATED CINEMATIC LIGHTING · 2024",
+  },
+  {
+    id: "neon-ronin",
+    index: "29",
+    category: "角色灯光",
+    categoryEn: "CHARACTER LIGHTING",
+    title: "霓虹女武者",
+    titleEn: "NEON WARRIOR",
+    year: "2022",
+    image: "works/lighting/d12.webp",
+    imageAlt:
+      "佩戴青紫发光目镜的女性武士站在日式街巷中，身穿深色护甲并携带发光利刃，背后传统屋檐与未来高楼交错。A female warrior with a cyan-violet visor and glowing blades stands among traditional Japanese buildings and futuristic neon towers.",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "佩戴发光目镜的女性武士站在一条融合传统建筑与未来高楼的街巷中。青色灯带、紫色霓虹与暖黄窗光交织在深色护甲和利刃表面，编织长发与清晰的剪影让角色成为城市夜色中的视觉中心。",
+    details: [
+      "青蓝环境光从街巷深处铺开，目镜与武器上的青紫自发光构成局部亮点。侧后方的暖光掠过头发和肩甲，使人物轮廓从低饱和建筑背景中分离，同时保留面部的柔和明暗。",
+      "护甲上的宽幅高光交代金属曲面，布料和腰间皮革则以更克制的反射呈现层次。传统屋檐、门柱与远处霓虹高楼共同建立空间透视，让古典街区与未来装备在同一画面中呼应。",
+      "A futuristic warrior stands between traditional Japanese architecture and neon city towers. Cyan and violet accents illuminate the visor, blades and armor, with warm window light adding contrast around the silhouette. Broad metallic highlights and restrained fabric reflections distinguish the character's materials against the subdued street.",
+    ],
+    credit: "角色与场景灯光作品 / CHARACTER & ENVIRONMENT LIGHTING",
+  },
 ];
 
 export const skillTags = [
@@ -581,7 +677,7 @@ export const newsItems = [
     date: "2026.09.17",
     title: "作品与制作过程更新计划",
     en: "Original work and process notes to follow",
-    body: "Lighting 已更新十三幅场景光影作品，涵盖酒馆室内、摩天轮夜景、石砌遗迹、自然森林、雨夜街区、日光客厅、山水楼阁、暮色灯街、装甲载具、齿轮工坊、森林追逐、阿凡提集市与晶谷远征。其余 12 个视频、游戏与插画案例目前为展示占位，后续将陆续补充作品与制作说明。",
+    body: "Lighting 已更新十七幅场景与角色光影作品，新增 2016 年《怪物猎人》、星夜旅居、2024 年《熊出没》与霓虹女武者，收录室内日光、自然森林、动画镜头、城市夜景与角色渲染等视觉探索。其余 12 个视频、游戏与插画案例目前为展示占位，后续将陆续补充作品与制作说明。",
   },
 ];
 

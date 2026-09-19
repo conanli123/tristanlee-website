@@ -16,6 +16,7 @@ export type MusicState = {
   shuffle: boolean;
   select: (index: number) => void;
   toggle: () => void;
+  pause: () => void;
   next: () => void;
   previous: () => void;
   seek: (seconds: number) => void;

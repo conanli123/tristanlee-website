@@ -92,7 +92,7 @@ test("real audio playback, seek, shuffle, track selection and route continuity",
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("#/music", { waitUntil: "domcontentloaded" });
   const audio = page.locator("audio[data-site-music]");
-  await expect(page.locator(".music-track-row")).toHaveCount(4);
+  await expect(page.locator(".music-track-row")).toHaveCount(7);
   await expect
     .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).readyState))
     .toBeGreaterThan(0);
@@ -196,6 +196,62 @@ test("paused preference survives reload and does not restart on navigation", asy
   );
 });
 
+test("official song previews pause background audio and restore native playback on selection", async ({
+  page,
+}) => {
+  // Verify our integration independently of third-party region/subscription rules.
+  await page.route("https://embed.music.apple.com/**", (route) =>
+    route.fulfill({
+      contentType: "text/html",
+      body: "<!doctype html><html><body>Official player fixture</body></html>",
+    }),
+  );
+  await page.goto("#/music", { waitUntil: "domcontentloaded" });
+  await page.locator(".music-track-row").first().click();
+  const audio = page.locator("audio[data-site-music]");
+  if (await audio.evaluate((a) => (a as HTMLAudioElement).paused))
+    await page.locator(".music-play-button").click();
+  await expect
+    .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime))
+    .toBeGreaterThan(0.1);
+  const previews = [
+    { title: "快乐崇拜", songId: "1443399243" },
+    { title: "八方来财", songId: "1763742879" },
+    { title: "花花公子", songId: "1724867781" },
+  ];
+  for (const [index, preview] of previews.entries()) {
+    await page.locator(".music-platform-row").nth(index).click();
+    await expect(page.locator(".music-current h2")).toHaveText(preview.title);
+    await expect(page.locator(".music-platform-player iframe")).toHaveCount(1);
+    await expect(page.locator(".music-platform-player iframe")).toHaveAttribute(
+      "src",
+      `https://embed.music.apple.com/cn/song/${preview.songId}`,
+    );
+    await expect(page.locator(".music-platform-player > a")).toHaveAttribute(
+      "href",
+      `https://music.apple.com/cn/song/${preview.songId}`,
+    );
+    await expect(
+      page.locator(".music-track-row[aria-current=true]"),
+    ).toHaveCount(1);
+    await expect
+      .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).paused))
+      .toBe(true);
+  }
+  await page.locator(".music-track-row").nth(1).click();
+  await expect(page.locator(".music-platform-player iframe")).toHaveCount(0);
+  await expect(page.locator(".music-current h2")).toHaveText("Griphop");
+  await expect
+    .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime))
+    .toBeGreaterThan(0.1);
+  await page.locator(".music-platform-row").first().click();
+  await page.locator('.desktop-nav a[href="#/work"]').click();
+  await expect(page.locator(".music-platform-player iframe")).toHaveCount(0);
+  expect(await audio.evaluate((a) => (a as HTMLAudioElement).paused)).toBe(
+    true,
+  );
+});
+
 test("autoplay denial is recoverable with one play click", async ({
   browser,
   baseURL,
@@ -294,7 +350,7 @@ for (const width of [320, 390, 1024, 1366, 1440]) {
   test(`music layout and navigation fit at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("#/music", { waitUntil: "domcontentloaded" });
-    await expect(page.locator(".music-track-row")).toHaveCount(4);
+    await expect(page.locator(".music-track-row")).toHaveCount(7);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth - innerWidth,

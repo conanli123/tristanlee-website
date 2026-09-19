@@ -1,7 +1,7 @@
 # Lighting images
 
-The portfolio owner supplied `d1.png` through `d14.png` (plus `d13.jpg`) for
-these thirteen entries. Each WebP is encoded at quality 92 without cropping;
+The portfolio owner supplied `d1.png` through `d17.png` (using `d13.jpg` for the thirteenth image) for
+these seventeen entries. Each WebP is encoded at quality 92 without cropping;
 the original composition is preserved at its source dimensions.
 
 - `d1.webp`: stone-and-timber tavern, window light and warm fireplace.
@@ -17,5 +17,9 @@ the original composition is preserved at its source dimensions.
 - `d13.webp`: stylized forest chase with a tiger and two animated characters in cool blue light.
 - `d14.webp`: Afanti market in a sunlit earthen village, with merchants, donkey and woven goods.
 - `d11.webp`: colorful canyon expedition with a robot, young explorer, bear and vintage car.
+- `d15.webp`: Monster Hunter (2016), a charging wyvern, armored hunter, barrels and sunlit airborne dust.
+- `d16.webp`: Starry Camper Night (2025), anime character in a violet-lit camper bedroom overlooking blue woodland.
+- `d17.webp`: Boonie Bears (2024), three characters hiding behind a mossy rock beneath a giant furry spider in sunlit foliage.
+- `d12.webp`: Neon Warrior (2022), futuristic woman warrior with luminous visor and blades in a Japanese-inspired neon street.
 
 The original PNG/JPG files remain unchanged in the owner's source directory.

@@ -86,7 +86,7 @@ function put(cookie, liked, options = {}) {
 test("new anonymous visitors receive zero counts and an HttpOnly cookie", async () => {
   const visitor = await visit();
   assert.equal(visitor.response.headers.get("Cache-Control"), "no-store");
-  assert.equal(Object.keys(visitor.body.counts).length, 25);
+  assert.equal(Object.keys(visitor.body.counts).length, 29);
   assert.ok(Object.values(visitor.body.counts).every((count) => count === 0));
   assert.deepEqual(visitor.body.liked, []);
   assert.match(visitor.cookieHeader, /HttpOnly/);

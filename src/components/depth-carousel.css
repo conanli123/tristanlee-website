@@ -131,6 +131,7 @@
   background: #141414;
 }
 .depth-carousel__play {
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   display: grid;
@@ -138,10 +139,10 @@
 }
 @media (max-width: 700px) {
   .depth-carousel {
-    height: calc(var(--dc-card-height, 210px) + 100px);
+    height: calc(var(--dc-card-height, 210px) + 124px);
   }
   .depth-carousel__stage {
-    bottom: 44px;
+    bottom: 68px;
   }
   .depth-carousel__arrow {
     width: 34px;
@@ -154,7 +155,13 @@
     right: 0;
   }
   .depth-carousel__navigation {
-    gap: 2px;
+    gap: 6px;
+    height: 64px;
+  }
+  .depth-carousel__dots {
+    max-width: calc(100% - 38px);
+    flex-wrap: wrap;
+    justify-content: center;
   }
   .depth-carousel__dot {
     width: 18px;
