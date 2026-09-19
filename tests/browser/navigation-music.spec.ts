@@ -92,11 +92,11 @@ test("real audio playback, seek, shuffle, track selection and route continuity",
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("#/music", { waitUntil: "domcontentloaded" });
   const audio = page.locator("audio[data-site-music]");
-  await expect(page.locator(".music-track-row")).toHaveCount(7);
+  await expect(page.locator(".music-track-row")).toHaveCount(5);
   await expect
     .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).readyState))
     .toBeGreaterThan(0);
-  await page.locator(".music-track-row").nth(1).click();
+  await page.locator(".music-track-row").nth(2).click();
   if (await audio.evaluate((a) => (a as HTMLAudioElement).paused))
     await page.locator(".music-play-button").click();
   await expect
@@ -155,9 +155,9 @@ test("real audio playback, seek, shuffle, track selection and route continuity",
     page.getByRole("button", { name: "随机播放", exact: true }),
   ).toHaveAttribute("aria-pressed", "false");
   await page.locator(".music-track-row").first().click();
-  await expect(page.locator(".music-current h2")).toHaveText("District Four");
+  await expect(page.locator(".music-current h2")).toHaveText("八方来财");
   await page.getByRole("button", { name: "下一首", exact: true }).click();
-  await expect(page.locator(".music-current h2")).toHaveText("Griphop");
+  await expect(page.locator(".music-current h2")).toHaveText("District Four");
   await expect
     .poll(() =>
       audio.evaluate((a) => Number.isFinite((a as HTMLAudioElement).duration)),
@@ -169,13 +169,13 @@ test("real audio playback, seek, shuffle, track selection and route continuity",
   await page
     .getByRole("slider", { name: "播放进度", exact: true })
     .fill(String(end));
-  await expect(page.locator(".music-current h2")).toHaveText("Chillin Hard", {
+  await expect(page.locator(".music-current h2")).toHaveText("Griphop", {
     timeout: 5000,
   });
   expect(errors).toEqual([]);
 });
 
-test("paused preference survives reload and does not restart on navigation", async ({
+test("pausing lasts for this visit and reopening attempts the first song again", async ({
   page,
 }) => {
   await page.goto("#/music", { waitUntil: "domcontentloaded" });
@@ -186,76 +186,68 @@ test("paused preference survives reload and does not restart on navigation", asy
     .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).paused))
     .toBe(false);
   await page.locator(".music-play-button").click();
-  await page.reload({ waitUntil: "domcontentloaded" });
-  await expect
-    .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).readyState))
-    .toBeGreaterThan(0);
-  expect(await audio.evaluate((a) => (a as HTMLAudioElement).paused)).toBe(
-    true,
-  );
   await page.locator('.desktop-nav a[href="#/home"]').click();
   expect(await audio.evaluate((a) => (a as HTMLAudioElement).paused)).toBe(
     true,
   );
+  await page.addInitScript(() => {
+    const original = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function () {
+      document.documentElement.dataset.reopenedMusic = this.src;
+      return original.call(this);
+    };
+  });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-reopened-music", /\/music\/ba-fang-lai-cai\.mp3$/,
+  );
 });
 
-test("official song previews pause background audio and restore native playback on selection", async ({
+test("uploaded songs play beyond preview length in the native playlist", async ({
   page,
 }) => {
-  // Verify our integration independently of third-party region/subscription rules.
-  await page.route("https://embed.music.apple.com/**", (route) =>
-    route.fulfill({
-      contentType: "text/html",
-      body: "<!doctype html><html><body>Official player fixture</body></html>",
-    }),
-  );
   await page.goto("#/music", { waitUntil: "domcontentloaded" });
-  await page.locator(".music-track-row").first().click();
+  await expect(
+    page.locator(".music-track-name > span > strong"),
+  ).toHaveText(["八方来财", "District Four", "Griphop", "快乐崇拜", "花花公子"]);
+  await expect(page.locator(".music-page iframe")).toHaveCount(0);
   const audio = page.locator("audio[data-site-music]");
-  if (await audio.evaluate((a) => (a as HTMLAudioElement).paused))
-    await page.locator(".music-play-button").click();
-  await expect
-    .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime))
-    .toBeGreaterThan(0.1);
-  const previews = [
-    { title: "快乐崇拜", songId: "1443399243" },
-    { title: "八方来财", songId: "1763742879" },
-    { title: "花花公子", songId: "1724867781" },
+  const uploads = [
+    { index: 3, title: "快乐崇拜", file: "happy-worship.mp3" },
+    { index: 4, title: "花花公子", file: "crush-on-you.mp3" },
+    { index: 0, title: "八方来财", file: "ba-fang-lai-cai.mp3" },
   ];
-  for (const [index, preview] of previews.entries()) {
-    await page.locator(".music-platform-row").nth(index).click();
-    await expect(page.locator(".music-current h2")).toHaveText(preview.title);
-    await expect(page.locator(".music-platform-player iframe")).toHaveCount(1);
-    await expect(page.locator(".music-platform-player iframe")).toHaveAttribute(
-      "src",
-      `https://embed.music.apple.com/cn/song/${preview.songId}`,
-    );
-    await expect(page.locator(".music-platform-player > a")).toHaveAttribute(
-      "href",
-      `https://music.apple.com/cn/song/${preview.songId}`,
-    );
+  for (const upload of uploads) {
+    await page.locator(".music-track-row").nth(upload.index).click();
+    await expect(page.locator(".music-current h2")).toHaveText(upload.title);
+    await expect
+      .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentSrc))
+      .toMatch(new RegExp(`/music/${upload.file.replace(".", "\\.")}$`));
+    await expect
+      .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).duration))
+      .toBeGreaterThan(100);
+    await expect
+      .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime))
+      .toBeGreaterThan(0.1);
+    await page.getByRole("slider", { name: "播放进度", exact: true }).fill("60");
+    await expect
+      .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime), {
+        timeout: 15_000,
+      })
+      .toBeGreaterThan(60.1);
     await expect(
       page.locator(".music-track-row[aria-current=true]"),
     ).toHaveCount(1);
-    await expect
-      .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).paused))
-      .toBe(true);
+    expect(await audio.evaluate((a) => (a as HTMLAudioElement).error)).toBeNull();
   }
-  await page.locator(".music-track-row").nth(1).click();
-  await expect(page.locator(".music-platform-player iframe")).toHaveCount(0);
-  await expect(page.locator(".music-current h2")).toHaveText("Griphop");
-  await expect
-    .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime))
-    .toBeGreaterThan(0.1);
-  await page.locator(".music-platform-row").first().click();
   await page.locator('.desktop-nav a[href="#/work"]').click();
-  await expect(page.locator(".music-platform-player iframe")).toHaveCount(0);
+  await expect(page.locator(".music-mini-title strong")).toHaveText("八方来财");
   expect(await audio.evaluate((a) => (a as HTMLAudioElement).paused)).toBe(
-    true,
+    false,
   );
 });
 
-test("autoplay denial is recoverable with one play click", async ({
+test("autoplay denial recovers on the first ordinary page interaction", async ({
   browser,
   baseURL,
 }) => {
@@ -274,60 +266,109 @@ test("autoplay denial is recoverable with one play click", async ({
   try {
     await page.goto("#/music", { waitUntil: "domcontentloaded" });
     await expect(page.locator(".music-status")).toContainText("点击播放");
-    await page.locator(".music-play-button").click();
+    await expect(page.locator(".music-current h2")).toHaveText("八方来财");
+    const audio = page.locator("audio[data-site-music]");
+    expect(await audio.evaluate((a) => (a as HTMLAudioElement).paused)).toBe(true);
+    // Non-control content inside the MUSIC page must also unlock playback.
+    await page.locator(".music-page-heading h1").click();
     await expect
-      .poll(() =>
-        page
-          .locator("audio")
-          .evaluate((a) => (a as HTMLAudioElement).currentTime),
-      )
+      .poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime))
       .toBeGreaterThan(0.1);
-    await expect(page.locator(".music-status")).toContainText("继续浏览");
+    expect(await audio.evaluate((a) => (a as HTMLAudioElement).currentSrc)).toMatch(
+      /\/music\/ba-fang-lai-cai\.mp3$/,
+    );
+    await page.locator('.desktop-nav a[href="#/home"]').click();
+    await expect(page.locator(".music-mini-title strong")).toHaveText("八方来财");
   } finally {
     await context.close();
   }
 });
 
-test("fresh visits choose different tracks from the full playlist", async ({
+test("fresh visits always attempt to autoplay 八方来财 before any interaction", async ({
   browser,
   baseURL,
 }) => {
-  const sources: string[] = [];
   for (const random of [0.1, 0.9]) {
     const context = await browser.newContext({ baseURL });
     await context.addInitScript((value) => {
       Math.random = () => value;
+      // Previous releases persisted paused state, including after platform previews.
+      localStorage.setItem("tristanlee-music", JSON.stringify({ enabled: false }));
+      const original = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function () {
+        if (this.matches("audio[data-site-music]")) {
+          document.documentElement.dataset.initialMusicAttempt = this.src;
+          document.documentElement.dataset.initialMusicHadGesture = String(
+            navigator.userActivation.hasBeenActive,
+          );
+        }
+        return original.call(this);
+      };
     }, random);
     const page = await context.newPage();
     try {
       await page.goto("#/music", { waitUntil: "domcontentloaded" });
-      await page.locator(".music-current h2").waitFor();
-      sources.push(
-        await page
-          .locator("audio")
-          .evaluate((a) => (a as HTMLAudioElement).src),
+      await expect(page.locator(".music-current h2")).toHaveText("八方来财");
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-initial-music-attempt",
+        /\/music\/ba-fang-lai-cai\.mp3$/,
+      );
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-initial-music-had-gesture",
+        "false",
       );
     } finally {
       await context.close();
     }
   }
-  expect(sources[0]).not.toEqual(sources[1]);
+});
+
+test("allowed autoplay starts audible first-song playback without interaction", async ({
+  playwright,
+  baseURL,
+}) => {
+  const browser = await playwright.chromium.launch({
+    channel: process.env.PLAYWRIGHT_CHANNEL || "msedge",
+    args: ["--no-proxy-server", "--autoplay-policy=no-user-gesture-required"],
+  });
+  try {
+    const context = await browser.newContext({ baseURL });
+    await context.addInitScript(() => {
+      localStorage.setItem("tristanlee-music", JSON.stringify({ enabled: false }));
+      const original = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function () {
+        document.documentElement.dataset.autoplayHadGesture = String(
+          navigator.userActivation.hasBeenActive,
+        );
+        return original.call(this);
+      };
+    });
+    const page = await context.newPage();
+    await page.goto("#/home", { waitUntil: "domcontentloaded" });
+    const audio = page.locator("audio[data-site-music]");
+    await expect.poll(() => audio.evaluate((a) => (a as HTMLAudioElement).currentTime))
+      .toBeGreaterThan(0.1);
+    expect(await audio.evaluate((a) => (a as HTMLAudioElement).muted)).toBe(false);
+    expect(await audio.evaluate((a) => (a as HTMLAudioElement).volume)).toBeGreaterThan(0);
+    expect(await audio.evaluate((a) => (a as HTMLAudioElement).src))
+      .toMatch(/\/music\/ba-fang-lai-cai\.mp3$/);
+    await expect(page.locator("html")).toHaveAttribute("data-autoplay-had-gesture", "false");
+  } finally {
+    await browser.close();
+  }
 });
 
 test("all tracks decode and a failed track can recover by switching songs", async ({
   page,
 }) => {
-  await page.addInitScript(() => {
-    Math.random = () => 0;
-  });
-  await page.route("**/music/district-four.mp3", (route) =>
+  await page.route("**/music/ba-fang-lai-cai.mp3", (route) =>
     route.fulfill({ status: 503, body: "Unavailable" }),
   );
   await page.goto("#/music", { waitUntil: "domcontentloaded" });
   await page.locator(".music-play-button").click();
   await expect(page.locator(".music-status")).toContainText("无法播放");
-  await page.unroute("**/music/district-four.mp3");
-  for (const index of [1, 2, 3, 0]) {
+  await page.unroute("**/music/ba-fang-lai-cai.mp3");
+  for (const index of [1, 2, 3, 4, 0]) {
     await page.locator(".music-track-row").nth(index).click();
     await expect
       .poll(() =>
@@ -353,7 +394,7 @@ for (const width of [320, 390, 1024, 1366, 1440]) {
   test(`music layout and navigation fit at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("#/music", { waitUntil: "domcontentloaded" });
-    await expect(page.locator(".music-track-row")).toHaveCount(7);
+    await expect(page.locator(".music-track-row")).toHaveCount(5);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth - innerWidth,

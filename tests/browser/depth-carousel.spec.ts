@@ -158,8 +158,11 @@ for (const width of [1440, 390]) {
     await expect(workSection.locator(".work-grid")).toHaveCount(0);
     await page.locator(".depth-carousel").scrollIntoViewIfNeeded();
     await pause(page);
-    await page.locator(dots).nth(10).click();
-    await expectCentered(page, 10);
+    const filmIndex = lightingWorks.findIndex(
+      (work) => work.title === "小破孩之大状元电影",
+    );
+    await page.locator(dots).nth(filmIndex).click();
+    await expectCentered(page, filmIndex);
     await page.locator(`${cards}.is-active`).click();
     await expect(page.locator(".detail-heading h1")).toHaveText(
       "小破孩之大状元电影",

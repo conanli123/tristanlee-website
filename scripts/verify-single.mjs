@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync, readdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
@@ -19,10 +19,11 @@ export function verifySingle(root) {
   assert(match, "Embedded media manifest missing");
   const assets = JSON.parse(match[1]);
   for (const track of [
+    "ba-fang-lai-cai",
     "district-four",
     "griphop",
-    "chillin-hard",
-    "rock-hybrid",
+    "happy-worship",
+    "crush-on-you",
   ]) {
     const name = `music/${track}.mp3`;
     assert(
@@ -36,7 +37,12 @@ export function verifySingle(root) {
       `Published music differs: ${name}`,
     );
   }
-  for (let index = 1; index <= 17; index++) {
+  assert.deepEqual(
+    readdirSync(join(root, "single-file", "music")).sort(),
+    readdirSync(join(root, "public", "music")).sort(),
+    "Published music folder must match the current playlist assets",
+  );
+  for (let index = 1; index <= 18; index++) {
     const name = `works/lighting/d${index}.webp`;
     assert(assets[name], `Lighting artwork missing: ${name}`);
   }

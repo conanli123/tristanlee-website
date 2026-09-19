@@ -7,7 +7,6 @@ const settingsKey = "tristanlee-music";
 type Preferences = {
   volume: number;
   muted: boolean;
-  enabled: boolean;
   shuffle: boolean;
 };
 function preferences(): Preferences {
@@ -19,11 +18,10 @@ function preferences(): Preferences {
           ? Math.min(1, Math.max(0, data.volume))
           : 0.22,
       muted: data.muted === true,
-      enabled: data.enabled !== false,
       shuffle: data.shuffle !== false,
     };
   } catch {
-    return { volume: 0.22, muted: false, enabled: true, shuffle: true };
+    return { volume: 0.22, muted: false, shuffle: true };
   }
 }
 function randomIndex(exclude = -1) {
@@ -42,7 +40,7 @@ function audioUrl(path: string) {
 
 export function MusicProvider({ children }: { children: ReactNode }) {
   const [initial] = useState(preferences);
-  const [index, setIndex] = useState(() => randomIndex());
+  const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [blocked, setBlocked] = useState(false);
@@ -52,7 +50,6 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [volume, setVolumeState] = useState(initial.volume);
   const [muted, setMuted] = useState(initial.muted);
   const [shuffle, setShuffle] = useState(initial.shuffle);
-  const [enabled, setEnabled] = useState(initial.enabled);
   const audioRef = useRef<HTMLAudioElement>(null);
   const indexRef = useRef(index);
   const shuffleRef = useRef(shuffle);
@@ -115,7 +112,6 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const select = useCallback(
     (nextIndex: number) => {
       if (!musicTracks[nextIndex]) return;
-      setEnabled(true);
       if (nextIndex !== indexRef.current || !audioRef.current?.src)
         loadTrack(nextIndex);
       void play();
@@ -134,7 +130,6 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     if (audio && audio.currentTime > 3) {
       audio.currentTime = 0;
       void play();
-      setEnabled(true);
     } else
       select((indexRef.current - 1 + musicTracks.length) % musicTracks.length);
   }, [select, play]);
@@ -146,7 +141,6 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     audio.pause();
     seekAbort.current?.abort();
     pendingSeek.current = null;
-    setEnabled(false);
     setBlocked(false);
     setLoading(false);
   }, []);
@@ -155,7 +149,6 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     if (!audio) return;
     if (!audio.paused) pause();
     else {
-      setEnabled(true);
       void play();
     }
   }, [pause, play]);
@@ -166,11 +159,19 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     audio.volume = initial.volume;
     audio.muted = initial.muted;
     loadTrack(indexRef.current);
-    if (initial.enabled) void play();
+    // Every new visit starts the first song. Pausing lasts for this visit only;
+    // older versions persisted enabled=false even when opening a preview track.
+    needsGesture.current = true;
+    void play();
     const unlock = (event: Event) => {
       if (!needsGesture.current) return;
       // Music controls make their own deliberate play/pause/selection request.
-      if ((event.target as Element)?.closest?.("[data-music-control]")) return;
+      if (
+        (event.target as Element)?.closest?.(
+          "[data-music-control] button, [data-music-control] input",
+        )
+      )
+        return;
       if (
         event instanceof KeyboardEvent &&
         (event.ctrlKey || event.metaKey || event.altKey || event.key === "Tab")
@@ -180,6 +181,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     };
     document.addEventListener("pointerdown", unlock, true);
     document.addEventListener("pointerup", unlock, true);
+    document.addEventListener("click", unlock, true);
+    document.addEventListener("touchend", unlock, true);
     document.addEventListener("keydown", unlock, true);
     return () => {
       request.current++;
@@ -189,6 +192,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       if (localAudioUrl.current) URL.revokeObjectURL(localAudioUrl.current);
       document.removeEventListener("pointerdown", unlock, true);
       document.removeEventListener("pointerup", unlock, true);
+      document.removeEventListener("click", unlock, true);
+      document.removeEventListener("touchend", unlock, true);
       document.removeEventListener("keydown", unlock, true);
     };
   }, [initial, loadTrack, play]);
@@ -202,12 +207,12 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(
         settingsKey,
-        JSON.stringify({ volume, muted, shuffle, enabled }),
+        JSON.stringify({ volume, muted, shuffle }),
       );
     } catch {
       /* Optional persistence. */
     }
-  }, [volume, muted, shuffle, enabled]);
+  }, [volume, muted, shuffle]);
 
   const seek = async (seconds: number) => {
     const audio = audioRef.current;
@@ -276,7 +281,6 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     });
     session.playbackState = playing ? "playing" : "paused";
     session.setActionHandler("play", () => {
-      setEnabled(true);
       void play();
     });
     session.setActionHandler("pause", pause);
@@ -323,7 +327,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       <audio
         ref={audioRef}
         data-site-music
-        preload="metadata"
+        preload="auto"
         onPlay={() => {
           setPlaying(true);
           setBlocked(false);

@@ -1,7 +1,7 @@
 # Lighting images
 
-The portfolio owner supplied `d1.png` through `d17.png` (using `d13.jpg` for the thirteenth image) for
-these seventeen entries. Each WebP is encoded at quality 92 without cropping;
+The portfolio owner supplied `d1.png` through `d18.png` (using `d13.jpg` for the thirteenth image) for
+these eighteen entries. Each WebP is encoded at quality 92 without cropping;
 the original composition is preserved at its source dimensions.
 
 - `d1.webp`: stone-and-timber tavern, window light and warm fireplace.
@@ -21,5 +21,6 @@ the original composition is preserved at its source dimensions.
 - `d16.webp`: Starry Camper Night (2025), anime character in a violet-lit camper bedroom overlooking blue woodland.
 - `d17.webp`: Boonie Bears (2024), three characters hiding behind a mossy rock beneath a giant furry spider in sunlit foliage.
 - `d12.webp`: Neon Warrior (2022), futuristic woman warrior with luminous visor and blades in a Japanese-inspired neon street.
+- `d18.webp`: How to Train Your Dragon (2016), Hiccup on Toothless leading fellow dragon riders through a blue sky; displayed first in Lighting.
 
 The original PNG/JPG files remain unchanged in the owner's source directory.

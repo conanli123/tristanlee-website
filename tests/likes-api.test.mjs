@@ -10,8 +10,21 @@ const origin = "https://portfolio.test";
 const workId = "luminous-ruins";
 let runtime;
 let database;
+let publishedWorkIds;
 
 before(async () => {
+  const siteBundle = await build({
+    entryPoints: ["src/data/site.ts"],
+    absWorkingDir: root,
+    bundle: true,
+    write: false,
+    format: "esm",
+    platform: "node",
+  });
+  const { works } = await import(
+    `data:text/javascript;base64,${Buffer.from(siteBundle.outputFiles[0].text).toString("base64")}`
+  );
+  publishedWorkIds = works.map((work) => work.id);
   const bundled = await build({
     stdin: {
       contents:
@@ -86,7 +99,10 @@ function put(cookie, liked, options = {}) {
 test("new anonymous visitors receive zero counts and an HttpOnly cookie", async () => {
   const visitor = await visit();
   assert.equal(visitor.response.headers.get("Cache-Control"), "no-store");
-  assert.equal(Object.keys(visitor.body.counts).length, 29);
+  assert.deepEqual(
+    Object.keys(visitor.body.counts).sort(),
+    [...publishedWorkIds].sort(),
+  );
   assert.ok(Object.values(visitor.body.counts).every((count) => count === 0));
   assert.deepEqual(visitor.body.liked, []);
   assert.match(visitor.cookieHeader, /HttpOnly/);
@@ -133,6 +149,29 @@ test("concurrent repeated requests never double-count a visitor", async () => {
   );
   assert.ok(removals.every((response) => response.status === 200));
   assert.equal((await visit()).body.counts[workId], 0);
+});
+
+test("newly published lighting work supports saved likes and cancellation", async () => {
+  const dragonId = "how-to-train-your-dragon";
+  const { cookie } = await visit();
+  assert.ok(publishedWorkIds.includes(dragonId));
+  const liked = await put(cookie, true, { workId: dragonId });
+  assert.equal(liked.status, 200);
+  assert.deepEqual(await liked.json(), {
+    workId: dragonId,
+    count: 1,
+    liked: true,
+  });
+  const reload = await runtime.dispatchFetch(`${origin}/api/likes`, {
+    headers: { Cookie: cookie },
+  });
+  const body = await reload.json();
+  assert.equal(body.counts[dragonId], 1);
+  assert.deepEqual(body.liked, [dragonId]);
+  assert.deepEqual(
+    await (await put(cookie, false, { workId: dragonId })).json(),
+    { workId: dragonId, count: 0, liked: false },
+  );
 });
 
 test("likes are isolated per work and only current work IDs are exposed", async () => {

@@ -3,67 +3,37 @@ export type MusicTrack = {
   title: string;
   artist: string;
   genre: string;
-  bpm: number;
+  bpm?: number;
   duration: number;
   src: string;
   color: string;
   source: string;
+  license?: "CC BY 4.0";
 };
 
-export type PlatformMusicTrack = {
-  id: string;
-  title: string;
-  artist: string;
-  genre: string;
-  color: string;
-  source: string;
-  embedSrc: string;
-};
-
-// Official platform players keep these recordings on their licensed service.
-// They are intentionally excluded from the site's native background queue.
-export const platformMusicTracks: PlatformMusicTrack[] = [
-  {
-    id: "happy-worship",
-    title: "快乐崇拜",
-    artist: "潘玮柏 / 张韶涵",
-    genre: "MANDOPOP / HIP-HOP",
-    color: "#ffbc62",
-    source: "https://music.apple.com/cn/song/1443399243",
-    embedSrc: "https://embed.music.apple.com/cn/song/1443399243",
-  },
+export const musicTracks: MusicTrack[] = [
   {
     id: "ba-fang-lai-cai",
     title: "八方来财",
     artist: "揽佬 SKAI ISYOURGOD",
     genre: "CHINESE HIP-HOP",
+    duration: 173.113,
+    src: "music/ba-fang-lai-cai.mp3",
     color: "#ff7f94",
     source: "https://music.apple.com/cn/song/1763742879",
-    embedSrc: "https://embed.music.apple.com/cn/song/1763742879",
   },
-  {
-    id: "crush-on-you",
-    title: "花花公子",
-    artist: "马思唯 / step.jad依加 / Higher Brothers",
-    genre: "CHINESE HIP-HOP / R&B",
-    color: "#99b9ff",
-    source: "https://music.apple.com/cn/song/1724867781",
-    embedSrc: "https://embed.music.apple.com/cn/song/1724867781",
-  },
-];
-
-export const musicTracks: MusicTrack[] = [
   {
     id: "district-four",
     title: "District Four",
     artist: "Kevin MacLeod",
     genre: "FUNK / BREAKBEAT",
     bpm: 176,
-    duration: 248,
+    duration: 248.294,
     src: "music/district-four.mp3",
     color: "#daff61",
     source:
       "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600039",
+    license: "CC BY 4.0",
   },
   {
     id: "griphop",
@@ -71,34 +41,31 @@ export const musicTracks: MusicTrack[] = [
     artist: "Kevin MacLeod",
     genre: "HIP-HOP / STRINGS",
     bpm: 90,
-    duration: 207,
+    duration: 206.785,
     src: "music/griphop.mp3",
     color: "#ff784d",
     source:
       "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100413",
+    license: "CC BY 4.0",
   },
   {
-    id: "chillin-hard",
-    title: "Chillin Hard",
-    artist: "Kevin MacLeod",
-    genre: "HIP-HOP / CHILL",
-    bpm: 80,
-    duration: 234,
-    src: "music/chillin-hard.mp3",
-    color: "#ab9aff",
-    source:
-      "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600028",
+    id: "happy-worship",
+    title: "快乐崇拜",
+    artist: "潘玮柏 / 张韶涵",
+    genre: "MANDOPOP / HIP-HOP",
+    duration: 205.375,
+    src: "music/happy-worship.mp3",
+    color: "#ffbc62",
+    source: "https://music.apple.com/cn/song/1443399243",
   },
   {
-    id: "rock-hybrid",
-    title: "Rock Hybrid",
-    artist: "Kevin MacLeod",
-    genre: "HIP-HOP / ROCK",
-    bpm: 116,
-    duration: 130,
-    src: "music/rock-hybrid.mp3",
-    color: "#6bcad1",
-    source:
-      "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100094",
+    id: "crush-on-you",
+    title: "花花公子",
+    artist: "马思唯 / step.jad依加 / Higher Brothers",
+    genre: "CHINESE HIP-HOP / R&B",
+    duration: 229.12,
+    src: "music/crush-on-you.mp3",
+    color: "#99b9ff",
+    source: "https://music.apple.com/cn/song/1724867781",
   },
 ];

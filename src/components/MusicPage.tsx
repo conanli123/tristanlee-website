@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import {
   ArrowUpRight,
   Headphones,
@@ -12,7 +12,6 @@ import {
   VolumeX,
 } from "lucide-react";
 import type { MusicTrack } from "../data/music";
-import { platformMusicTracks, type PlatformMusicTrack } from "../data/music";
 import { formatTime, useMusic } from "./music-context";
 import "./music.css";
 
@@ -74,37 +73,14 @@ function Equalizer({ playing }: { playing: boolean }) {
 
 export default function MusicPage() {
   const music = useMusic();
-  const playerPanel = useRef<HTMLDivElement>(null);
   const { track, tracks, index, playing, loading } = music;
-  const [platformTrack, setPlatformTrack] = useState<PlatformMusicTrack | null>(
-    null,
-  );
-  const displayedTrack = platformTrack || track;
-  const displayedIndex = platformTrack
-    ? tracks.length + platformMusicTracks.indexOf(platformTrack)
-    : index;
-  const selectPlatform = (item: PlatformMusicTrack) => {
-    music.pause();
-    setPlatformTrack(item);
-    playerPanel.current?.scrollIntoView({
-      block: "start",
-      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "auto"
-        : "smooth",
-    });
-  };
-  // A system media key can resume the native player while a preview is open.
-  // Remove the iframe in that case so the two players cannot overlap.
-  useEffect(() => {
-    if (playing) setPlatformTrack(null);
-  }, [playing]);
   const duration = music.duration || track.duration;
   const position = Math.min(music.currentTime, duration);
   const progress = duration ? (position / duration) * 100 : 0;
   const status =
     music.error ||
     (music.blocked
-      ? "点击播放，给画面一点节奏。"
+      ? "点击播放，或轻点页面空白处开启音乐。"
       : loading
         ? "正在加载音乐…"
         : playing
@@ -139,150 +115,118 @@ export default function MusicPage() {
             <i /> COURTSIDE SESSION
           </span>
           <span>
-            VOL. 01 /{" "}
-            {String(tracks.length + platformMusicTracks.length).padStart(
-              2,
-              "0",
-            )}{" "}
-            TRACKS
+            VOL. 01 / {String(tracks.length).padStart(2, "0")} TRACKS
           </span>
         </div>
 
         <div className="music-current">
-          <TrackArtwork
-            track={displayedTrack}
-            index={displayedIndex}
-            playing={!platformTrack && playing}
-          />
-          <div className="music-current-info" ref={playerPanel}>
+          <TrackArtwork track={track} index={index} playing={playing} />
+          <div className="music-current-info">
             <div className="music-now-label">
-              <Equalizer playing={!platformTrack && playing} />{" "}
-              {platformTrack
-                ? "PLATFORM PREVIEW"
-                : playing
-                  ? "NOW PLAYING"
-                  : "ON THE DECK"}
+              <Equalizer playing={playing} />{" "}
+              {playing ? "NOW PLAYING" : "ON THE DECK"}
             </div>
             <p className="music-current-genre">
-              {displayedTrack.genre} <span>·</span>{" "}
-              {platformTrack ? "APPLE MUSIC" : `${track.bpm} BPM`}
+              {track.genre}
+              {track.bpm !== undefined && (
+                <>
+                  {" "}
+                  <span>·</span> {track.bpm} BPM
+                </>
+              )}
             </p>
-            <h2>{displayedTrack.title}</h2>
-            <p className="music-current-artist">{displayedTrack.artist}</p>
-
-            {platformTrack ? (
-              <div
-                className="music-platform-player"
-                data-platform-track={platformTrack.id}
-              >
-                <iframe
-                  key={platformTrack.id}
-                  title={`${platformTrack.title} · Apple Music 官方播放器`}
-                  src={platformTrack.embedSrc}
-                  allow="autoplay; encrypted-media"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                />
-                <p>
-                  点击播放器试听 30 秒；完整收听及可用地区以 Apple Music 为准。
-                </p>
-                <a href={platformTrack.source} target="_blank" rel="noreferrer">
-                  在 Apple Music 打开 <ArrowUpRight />
-                </a>
+            <h2>{track.title}</h2>
+            <p className="music-current-artist">{track.artist}</p>
+            <div className="music-progress">
+              <input
+                type="range"
+                aria-label="播放进度"
+                aria-valuetext={`${formatTime(position)} / ${formatTime(duration)}`}
+                min="0"
+                max={duration}
+                step="0.25"
+                value={position}
+                onChange={(event) => music.seek(Number(event.target.value))}
+                style={{ "--progress": `${progress}%` } as CSSProperties}
+              />
+              <div>
+                <span>{formatTime(position)}</span>
+                <span>{formatTime(duration)}</span>
               </div>
-            ) : (
-              <>
-                <div className="music-progress">
-                  <input
-                    type="range"
-                    aria-label="播放进度"
-                    aria-valuetext={`${formatTime(position)} / ${formatTime(duration)}`}
-                    min="0"
-                    max={duration}
-                    step="0.25"
-                    value={position}
-                    onChange={(event) => music.seek(Number(event.target.value))}
-                    style={{ "--progress": `${progress}%` } as CSSProperties}
-                  />
-                  <div>
-                    <span>{formatTime(position)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-                </div>
+            </div>
 
-                <div className="music-playback">
-                  <button
-                    className={`music-icon-button${music.shuffle ? " is-active" : ""}`}
-                    onClick={music.toggleShuffle}
-                    aria-label="随机播放"
-                    aria-pressed={music.shuffle}
-                    title="随机播放"
-                  >
-                    <Shuffle />
-                  </button>
-                  <button
-                    className="music-icon-button"
-                    onClick={music.previous}
-                    aria-label="上一首"
-                    title="上一首"
-                  >
-                    <SkipBack />
-                  </button>
-                  <button
-                    className="music-play-button"
-                    onClick={music.toggle}
-                    aria-label={playing ? "暂停音乐" : "播放音乐"}
-                    title={playing ? "暂停" : "播放"}
-                  >
-                    {loading ? (
-                      <LoaderCircle className="music-loading" />
-                    ) : playing ? (
-                      <Pause fill="currentColor" />
-                    ) : (
-                      <Play fill="currentColor" />
-                    )}
-                  </button>
-                  <button
-                    className="music-icon-button"
-                    onClick={music.next}
-                    aria-label="下一首"
-                    title="下一首"
-                  >
-                    <SkipForward />
-                  </button>
-                  <div className="music-volume">
-                    <button
-                      className="music-icon-button"
-                      onClick={music.toggleMute}
-                      aria-label={music.muted ? "取消静音" : "静音"}
-                      title={music.muted ? "取消静音" : "静音"}
-                    >
-                      {music.muted || music.volume === 0 ? (
-                        <VolumeX />
-                      ) : (
-                        <Volume2 />
-                      )}
-                    </button>
-                    <input
-                      type="range"
-                      aria-label="音量"
-                      min="0"
-                      max="1"
-                      step="0.01"
-                      value={music.muted ? 0 : music.volume}
-                      onChange={(event) =>
-                        music.setVolume(Number(event.target.value))
-                      }
-                    />
-                  </div>
-                </div>
-                <p
-                  className={`music-status${music.error ? " is-error" : ""}`}
-                  role="status"
+            <div className="music-playback">
+              <button
+                className={`music-icon-button${music.shuffle ? " is-active" : ""}`}
+                onClick={music.toggleShuffle}
+                aria-label="随机播放"
+                aria-pressed={music.shuffle}
+                title="随机播放"
+              >
+                <Shuffle />
+              </button>
+              <button
+                className="music-icon-button"
+                onClick={music.previous}
+                aria-label="上一首"
+                title="上一首"
+              >
+                <SkipBack />
+              </button>
+              <button
+                className="music-play-button"
+                onClick={music.toggle}
+                aria-label={playing ? "暂停音乐" : "播放音乐"}
+                title={playing ? "暂停" : "播放"}
+              >
+                {loading ? (
+                  <LoaderCircle className="music-loading" />
+                ) : playing ? (
+                  <Pause fill="currentColor" />
+                ) : (
+                  <Play fill="currentColor" />
+                )}
+              </button>
+              <button
+                className="music-icon-button"
+                onClick={music.next}
+                aria-label="下一首"
+                title="下一首"
+              >
+                <SkipForward />
+              </button>
+              <div className="music-volume">
+                <button
+                  className="music-icon-button"
+                  onClick={music.toggleMute}
+                  aria-label={music.muted ? "取消静音" : "静音"}
+                  title={music.muted ? "取消静音" : "静音"}
                 >
-                  {status}
-                </p>
-              </>
-            )}
+                  {music.muted || music.volume === 0 ? (
+                    <VolumeX />
+                  ) : (
+                    <Volume2 />
+                  )}
+                </button>
+                <input
+                  type="range"
+                  aria-label="音量"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={music.muted ? 0 : music.volume}
+                  onChange={(event) =>
+                    music.setVolume(Number(event.target.value))
+                  }
+                />
+              </div>
+            </div>
+            <p
+              className={`music-status${music.error ? " is-error" : ""}`}
+              role="status"
+            >
+              {status}
+            </p>
           </div>
         </div>
 
@@ -301,13 +245,12 @@ export default function MusicPage() {
         </div>
         <ol className="music-track-list" aria-label="精选音乐歌单">
           {tracks.map((item, itemIndex) => {
-            const active = !platformTrack && itemIndex === index;
+            const active = itemIndex === index;
             return (
               <li key={item.id}>
                 <button
                   className={`music-track-row${active ? " is-current" : ""}`}
                   onClick={() => {
-                    setPlatformTrack(null);
                     active ? music.toggle() : music.select(itemIndex);
                   }}
                   aria-label={`${active && playing ? "暂停" : "播放"} ${item.title}，${item.artist}`}
@@ -328,7 +271,7 @@ export default function MusicPage() {
                     </span>
                   </span>
                   <span className="music-track-genre">{item.genre}</span>
-                  <span className="music-track-bpm">{item.bpm}</span>
+                  <span className="music-track-bpm">{item.bpm ?? "—"}</span>
                   <span className="music-track-duration">
                     {formatTime(item.duration)}
                   </span>
@@ -339,46 +282,9 @@ export default function MusicPage() {
               </li>
             );
           })}
-          {platformMusicTracks.map((item, itemIndex) => {
-            const active = platformTrack?.id === item.id;
-            return (
-              <li key={item.id}>
-                <button
-                  className={`music-track-row music-platform-row${active ? " is-current" : ""}`}
-                  onClick={() => selectPlatform(item)}
-                  aria-label={`试听 ${item.title}，${item.artist}`}
-                  aria-current={active ? "true" : undefined}
-                >
-                  <span className="music-track-number">
-                    {String(tracks.length + itemIndex + 1).padStart(2, "0")}
-                  </span>
-                  <span className="music-track-name">
-                    <TrackArtwork
-                      track={item}
-                      index={tracks.length + itemIndex}
-                      compact
-                    />
-                    <span>
-                      <strong>{item.title}</strong>
-                      <small>
-                        {item.artist}
-                        <span className="music-platform-badge">平台试听</span>
-                      </small>
-                    </span>
-                  </span>
-                  <span className="music-track-genre">{item.genre}</span>
-                  <span className="music-track-bpm">—</span>
-                  <span className="music-track-duration">试听</span>
-                  <span className="music-track-action">
-                    <Headphones />
-                  </span>
-                </button>
-              </li>
-            );
-          })}
         </ol>
         <p className="music-playlist-note">
-          4 首背景音乐 · 3 首平台试听。选择平台曲目时，背景音乐会暂停。
+          {tracks.length} 首精选音乐，陪你继续浏览作品。
         </p>
         <div className="music-session-footer">
           <span>GOOD LIGHT. GOOD VIBES.</span>
@@ -391,7 +297,7 @@ export default function MusicPage() {
           Music credits & licensing <span>音乐来源与授权</span>
         </summary>
         <p>
-          Music by{" "}
+          District Four / Griphop by{" "}
           <a href="https://incompetech.com/" target="_blank" rel="noreferrer">
             Kevin MacLeod / incompetech.com <ArrowUpRight />
           </a>{" "}
@@ -406,7 +312,7 @@ export default function MusicPage() {
           。音频已压缩，供网页播放。
         </p>
         <ul>
-          {tracks.map((item) => (
+          {tracks.filter((item) => item.license === "CC BY 4.0").map((item) => (
             <li key={item.id}>
               <a href={item.source} target="_blank" rel="noreferrer">
                 {item.title} <ArrowUpRight />
@@ -415,12 +321,11 @@ export default function MusicPage() {
           ))}
         </ul>
         <p>
-          《快乐崇拜》《八方来财》《花花公子》通过 Apple Music
-          官方播放器提供试听， 由原平台提供音频与完整收听服务，不适用上述 CC BY
-          4.0 授权。 《花花公子》在平台中显示为 Crush On You (feat. step.jad)。
+          《八方来财》《快乐崇拜》《花花公子》的版权归各自权利人所有，
+          不适用上述 CC BY 4.0 授权。
         </p>
         <ul>
-          {platformMusicTracks.map((item) => (
+          {tracks.filter((item) => !item.license).map((item) => (
             <li key={item.id}>
               <a href={item.source} target="_blank" rel="noreferrer">
                 {item.title} · {item.artist} <ArrowUpRight />
@@ -449,7 +354,7 @@ export function MiniPlayer() {
           {music.error
             ? "播放失败 · 打开歌单"
             : music.blocked
-              ? "点击播放背景音乐"
+              ? "轻点页面 · 开启音乐"
               : music.playing
                 ? "NOW PLAYING"
                 : "MUSIC / COURTSIDE"}

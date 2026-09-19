@@ -19,6 +19,14 @@ type LikesState = {
   toggle: (id: string) => Promise<void>;
 };
 const LikesContext = createContext<LikesState | null>(null);
+class LikesRequestError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super("点赞暂未连接，请稍后重试");
+    this.status = status;
+  }
+}
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     credentials: "same-origin",
@@ -26,7 +34,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     ...options,
     signal: AbortSignal.timeout(10000),
   });
-  if (!response.ok) throw new Error("点赞暂未连接，请稍后重试");
+  if (!response.ok) throw new LikesRequestError(response.status);
   return response.json() as Promise<T>;
 }
 export function LikesProvider({ children }: { children: ReactNode }) {
@@ -76,10 +84,12 @@ export function LikesProvider({ children }: { children: ReactNode }) {
     sync();
     const timer = window.setInterval(sync, 30000);
     window.addEventListener("focus", sync);
+    window.addEventListener("online", sync);
     document.addEventListener("visibilitychange", sync);
     return () => {
       clearInterval(timer);
       window.removeEventListener("focus", sync);
+      window.removeEventListener("online", sync);
       document.removeEventListener("visibilitychange", sync);
     };
   }, [refresh]);
@@ -114,14 +124,38 @@ export function LikesProvider({ children }: { children: ReactNode }) {
       };
       const desired = !previous.liked;
       apply(id, desired, Math.max(0, previous.count + (desired ? 1 : -1)));
-      const result = await request<{ count: number; liked: boolean }>(
-        `/api/likes/${encodeURIComponent(id)}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ liked: desired }),
-        },
-      );
+      const save = () =>
+        request<{ count: number; liked: boolean }>(
+          `/api/likes/${encodeURIComponent(id)}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ liked: desired }),
+          },
+        );
+      let result;
+      try {
+        result = await save();
+      } catch (error) {
+        if (!(error instanceof LikesRequestError) || error.status !== 409)
+          throw error;
+        // A cleared or expired visitor cookie needs a new session before PUT.
+        // Keep the user's intended state and avoid changing other pending likes.
+        const data = await refresh();
+        previous = {
+          liked: data.liked.includes(id),
+          count: data.counts[id] ?? 0,
+        };
+        apply(
+          id,
+          desired,
+          Math.max(
+            0,
+            previous.count + (Number(desired) - Number(previous.liked)),
+          ),
+        );
+        result = await save();
+      }
       if (
         !Number.isSafeInteger(result.count) ||
         result.count < 0 ||
@@ -160,7 +194,7 @@ export function LikeButton({ id, title }: { id: string; title: string }) {
         className={`like-button ${liked ? "is-liked" : ""}`}
         aria-pressed={liked}
         aria-busy={pending}
-        aria-label={`${liked ? "取消点赞" : "点赞"}${title}，${state.ready ? `${count} 人点赞` : "正在连接点赞服务"}`}
+        aria-label={`${liked ? "取消点赞" : "点赞"}${title}，${state.ready ? `${count} 人点赞` : state.loading ? "正在连接点赞服务" : "点击重新连接点赞服务"}`}
         disabled={pending || state.loading}
         onClick={() => void state.toggle(id)}
         title={

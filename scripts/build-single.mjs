@@ -6,6 +6,7 @@ import {
   readdirSync,
   copyFileSync,
   cpSync,
+  rmSync,
 } from "node:fs";
 import { join, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -98,7 +99,10 @@ mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "index.html"), html);
 copyFileSync(join(root, "_routes.json"), join(outDir, "_routes.json"));
 // Stream the playlist separately; do not force every visitor to load all audio.
-cpSync(join(root, "public", "music"), join(outDir, "music"), {
+const publishedMusic = join(outDir, "music");
+// This fixed generated directory must mirror public/music after tracks are removed.
+rmSync(publishedMusic, { recursive: true, force: true });
+cpSync(join(root, "public", "music"), publishedMusic, {
   recursive: true,
 });
 verifySingle(root);

@@ -402,43 +402,11 @@
 .music-status.is-error {
   color: #ffc4a7;
 }
-.music-platform-player {
-  margin-top: 26px;
-}
-.music-platform-player iframe {
-  display: block;
-  width: 100%;
-  height: 175px;
-  border: 0;
-  border-radius: 10px;
-  background: #252a25;
-}
-.music-platform-player p,
 .music-playlist-note {
   margin-top: 14px;
   color: #b4bcac;
   font-size: 10px;
   line-height: 1.8;
-}
-.music-platform-player > a {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 12px;
-  color: var(--music-accent);
-  font-size: 11px;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.music-platform-player > a svg {
-  width: 13px;
-  height: 13px;
-}
-.music-platform-badge {
-  display: inline-block;
-  margin-left: 7px;
-  color: #d8eb8d;
-  font-size: 9px;
 }
 .music-playlist-note {
   padding: 4px 14px 0;

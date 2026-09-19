@@ -12,7 +12,9 @@
 - `functions/`：公开点赞的 Cloudflare Pages Functions API。
 - `migrations/`：点赞 D1 数据库迁移；`wrangler.jsonc`：Pages 项目与数据库绑定配置，Wrangler 自动读取。
 
-当前有 29 件作品，其中 17 件 Lighting 作品使用用户提供的 `d1` 至 `d17` 图片（`d13` 来源为 JPG），其余 12 件为占位。Lighting 分类包含深度翻页展示；《怪物猎人》为 2016，《熊出没》为 2024，阿凡提为 2017，其余作品年份按用户要求配置。
+当前有 30 件作品，其中 18 件 Lighting 作品使用用户提供的 `d1` 至 `d18` 图片（`d13` 来源为 JPG），其余 12 件为占位。Lighting 分类包含深度翻页展示，首位是 `d18` 对应的 2016 年《驯龙高手》；《怪物猎人》为 2016，《熊出没》为 2024，阿凡提为 2017，其余作品年份按用户要求配置。
+
+音乐列表依次为《八方来财》、District Four、Griphop、《快乐崇拜》《花花公子》，全部使用本地 MP3。三首中文歌曲已由用户提供的完整录音替代平台试听；原 Chillin Hard、Rock Hybrid 已移除。打开网页时先尝试播放《八方来财》，浏览器限制有声自动播放时在首次点击/按键后继续，暂停只影响当前访问；重新打开或刷新会重新尝试首曲，静音与音量设置仍保留。
 
 ## 生成可发布文件
 
@@ -22,6 +24,8 @@ npm run build:single
 ```
 
 构建会将 CSS、JavaScript、favicon 和 `public/works/`、`public/placeholders/`、`public/animations/` 中的媒体内嵌。旧 `public/art/` 和 `public/media/` 不会进入单文件。HTML 必须小于 25 MiB；更大媒体建议改为外部托管并调整构建流程。
+
+音乐按需加载，不内嵌到 HTML。构建会复制 `public/music/` 到 `single-file/music/`；发布或移动 `single-file/index.html` 时须同时保留 `music/`，本地根目录 `index.html` 则从 `public/music/` 读取音乐。
 
 ## 发布到 Cloudflare Pages
 

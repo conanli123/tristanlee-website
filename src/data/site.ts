@@ -1,4 +1,4 @@
-// Lighting 已更新为用户提供的 17 张场景与角色作品，其余 12 个案例仍为版式展示占位。
+// 共 30 个作品条目：Lighting 收录用户提供的 18 张场景与角色作品，其余 12 个案例仍为版式展示占位。
 export const site = {
   name: "TristanLee",
   chineseName: "李天纯",
@@ -14,9 +14,9 @@ export const site = {
   profileBody:
     "从场景灯光与角色渲染，到镜头合成与材质研究，我关注画面中每一层光影的关系。这里将整理我的视觉探索与作品，让过程和最终画面一起被看见。",
   workNotice:
-    "Lighting 收录十七幅场景与角色光影作品；其余 12 个视频、游戏与插画案例目前为展示占位，内容将陆续更新。",
+    "Lighting 收录十八幅场景与角色光影作品；其余 12 个视频、游戏与插画案例目前为展示占位，内容将陆续更新。",
   workNoticeEn:
-    "Lighting features seventeen environment and character artworks. The remaining 12 film, game and illustration entries are placeholders, with more work to follow.",
+    "Lighting features eighteen environment and character artworks. The remaining 12 film, game and illustration entries are placeholders, with more work to follow.",
 };
 
 export type WorkKind = "image" | "video" | "game";
@@ -110,6 +110,30 @@ function placeholder(input: PlaceholderInput): Work {
 
 // Lighting 未指定的年份按用户要求在 2019–2026 年间分散设置；指定年份沿用用户信息，非图片元数据。
 export const works: Work[] = [
+  {
+    id: "how-to-train-your-dragon",
+    index: "30",
+    category: "动画影视灯光",
+    categoryEn: "ANIMATED CINEMATIC LIGHTING",
+    title: "驯龙高手",
+    titleEn: "HOW TO TRAIN YOUR DRAGON",
+    year: "2016",
+    image: "works/lighting/d18.webp",
+    imageAlt:
+      "小嗝嗝骑着无牙仔迎面飞过蓝天，伙伴们驾驭不同的龙分列四周，展开的翅膀与下方云层构成明亮开阔的飞行画面。Hiccup rides Toothless toward the viewer, surrounded by fellow dragon riders with outstretched wings against a blue sky and soft clouds.",
+    imagePosition: "50% 50%",
+    isPlaceholder: false,
+    kind: "image",
+    group: "lighting",
+    description:
+      "《驯龙高手》的飞行画面中，小嗝嗝骑着无牙仔迎面掠过蓝天，伙伴们驾驭着形态各异的龙环绕在四周。舒展的双翼横贯画面，轻薄云层托起整个队伍，让角色间的默契与自由翱翔的轻快感自然呈现。",
+    details: [
+      "柔和日光从上方照亮人物面部、龙背与翼缘，蓝色天空的环境光填充阴影，使无牙仔深色的身体仍保留清晰的鳞片与体积。浅色龙身上的暖亮部与中央深色主角相互映衬，让飞行队伍在开阔背景中层次分明。",
+      "无牙仔的头部和小嗝嗝处于构图中心，宽展的黑色双翼向两侧延伸，其他龙骑手在前后高低的位置构成环绕式节奏。鳞片的细碎高光、皮革与毛绒服饰的柔和反射，以及半透明翼膜的明暗变化，共同呈现不同材质的光照响应。",
+      "Hiccup and Toothless lead a group of dragon riders across a clear blue sky. Soft daylight reveals the dark scales of Toothless while warmer highlights distinguish the surrounding dragons, leather and fur-trimmed clothing. Outstretched wings spread across the frame, and the staggered riders and pale clouds create a sense of depth and effortless flight.",
+    ],
+    credit: "动画影视灯光作品 · 2016 / ANIMATED CINEMATIC LIGHTING · 2016",
+  },
   {
     id: "luminous-ruins",
     index: "01",
@@ -677,7 +701,7 @@ export const newsItems = [
     date: "2026.09.17",
     title: "作品与制作过程更新计划",
     en: "Original work and process notes to follow",
-    body: "Lighting 已更新十七幅场景与角色光影作品，新增 2016 年《怪物猎人》、星夜旅居、2024 年《熊出没》与霓虹女武者，收录室内日光、自然森林、动画镜头、城市夜景与角色渲染等视觉探索。其余 12 个视频、游戏与插画案例目前为展示占位，后续将陆续补充作品与制作说明。",
+    body: "Lighting 已更新十八幅场景与角色光影作品，首位展示 2016 年《驯龙高手》，并收录《怪物猎人》、星夜旅居、2024 年《熊出没》与霓虹女武者等作品，呈现室内日光、自然森林、动画镜头、城市夜景与角色渲染的视觉探索。其余 12 个视频、游戏与插画案例目前为展示占位，后续将陆续补充作品与制作说明。",
   },
 ];
 
