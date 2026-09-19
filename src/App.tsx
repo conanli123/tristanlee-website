@@ -7,9 +7,11 @@ import { useReducedMotion } from "./hooks/useTypewriter";
 import { useProfileMotion } from "./hooks/useProfileMotion";
 import { useCarouselDrag } from "./hooks/useCarouselDrag";
 import { useCarouselHover } from "./hooks/useCarouselHover";
+import { useSectionNavigation } from "./hooks/useSectionNavigation";
 import FlowerScene from "./components/FlowerScene";
 import { LikeButton } from "./components/LikesProvider";
 import DepthCarousel from "./components/DepthCarousel";
+import MusicPage, { MiniPlayer } from "./components/MusicPage";
 
 function Icon({
   name,
@@ -72,6 +74,7 @@ const navigation = [
   { id: "work", en: "WORK", zh: "作品" },
   { id: "profile", en: "PROFILE", zh: "关于我" },
   { id: "news", en: "NEWS", zh: "动态" },
+  { id: "music", en: "MUSIC", zh: "音乐" },
   { id: "faq", en: "FAQ", zh: "合作说明" },
   { id: "contact", en: "CONTACT", zh: "联系" },
 ];
@@ -276,6 +279,8 @@ function Hero() {
   return (
     <section
       className="hero"
+      id="home"
+      data-home-section="home"
       aria-label="精选作品轮播"
       aria-roledescription="轮播"
       onMouseEnter={() => setHovered(true)}
@@ -500,6 +505,7 @@ function Works({
     <section
       className={`section work-section ${full ? "page-section" : ""}`}
       id="work"
+      data-home-section={!full && !savedOnly ? "work" : undefined}
     >
       <Reveal>
         <div className="section-heading-row">
@@ -649,6 +655,8 @@ function ProfileCard() {
   return (
     <section
       className="profile-band"
+      id="profile"
+      data-home-section="profile"
       ref={panelRef}
       aria-label="李天纯的个人名片"
     >
@@ -682,7 +690,11 @@ function ProfileCard() {
 }
 function News({ full = false }: { full?: boolean }) {
   return (
-    <section className={`section news-section ${full ? "page-section" : ""}`}>
+    <section
+      className={`section news-section ${full ? "page-section" : ""}`}
+      id="news"
+      data-home-section={!full ? "news" : undefined}
+    >
       <Reveal>
         <div className="section-heading-row">
           <OutlineHeading>NEWS</OutlineHeading>
@@ -755,7 +767,11 @@ function Contact({ full = false }: { full?: boolean }) {
     }
   };
   return (
-    <section className={`contact-section ${full ? "contact-page" : ""}`}>
+    <section
+      className={`contact-section ${full ? "contact-page" : ""}`}
+      id="contact"
+      data-home-section={!full ? "contact" : undefined}
+    >
       <OutlineHeading>CONTACT</OutlineHeading>
       <p>
         关于游戏影像、渲染合成与创意合作，
@@ -1062,6 +1078,9 @@ export default function App() {
     () => window.location.hash.replace(/^#\/?/, "") || "home",
   );
   const [route, routeQuery = ""] = rawRoute.split("?");
+  const sectionNavigation = useSectionNavigation(route, routeQuery);
+  const routeRef = useRef(route);
+  routeRef.current = route;
   const categoryParam = new URLSearchParams(routeQuery).get("category");
   const workCategory = workCategories.some((item) => item.id === categoryParam)
     ? categoryParam!
@@ -1092,12 +1111,19 @@ export default function App() {
   const mainRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const navigate = () => {
-      setRoute(window.location.hash.replace(/^#\/?/, "") || "home");
+      const nextRoute = window.location.hash.replace(/^#\/?/, "") || "home";
+      const nextPage = nextRoute.split("?")[0];
+      const pageChanged = nextPage !== routeRef.current;
+      setRoute(nextRoute);
       setOverlay(null);
-      window.scrollTo({ top: 0, behavior: "instant" });
-      requestAnimationFrame(() =>
-        mainRef.current?.focus({ preventScroll: true }),
-      );
+      if (nextPage !== "home" && nextPage !== "") {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+      if (pageChanged) {
+        requestAnimationFrame(() =>
+          mainRef.current?.focus({ preventScroll: true }),
+        );
+      }
     };
     window.addEventListener("hashchange", navigate);
     return () => {
@@ -1169,9 +1195,10 @@ export default function App() {
       </a>
       <header className="site-header">
         <a
-          href="#/"
+          href={sectionNavigation.hrefFor("home")}
           className="header-logo"
           aria-label="李天纯 · 影视游戏渲染师 / TristanLee · Lighting Artist — 首页"
+          onClick={(event) => sectionNavigation.navigate(event, "home")}
         >
           <Brand />
         </a>
@@ -1185,10 +1212,19 @@ export default function App() {
         <nav className="desktop-nav" aria-label="主导航">
           {navigation.map((item) => (
             <a
-              href={`#/${item.id}`}
+              href={sectionNavigation.hrefFor(item.id)}
               key={item.id}
-              className={page === item.id ? "active" : ""}
-              aria-current={page === item.id ? "page" : undefined}
+              className={
+                sectionNavigation.activePage === item.id ? "active" : ""
+              }
+              aria-current={
+                sectionNavigation.activePage === item.id
+                  ? sectionNavigation.isHome
+                    ? "location"
+                    : "page"
+                  : undefined
+              }
+              onClick={(event) => sectionNavigation.navigate(event, item.id)}
             >
               <span>{item.en}</span>
               <span>{item.zh}</span>
@@ -1272,6 +1308,8 @@ export default function App() {
               ALL NEWS
             </LineLink>
           </section>
+        ) : route === "music" ? (
+          <MusicPage />
         ) : route === "faq" ? (
           <FAQ />
         ) : route === "contact" ? (
@@ -1310,6 +1348,7 @@ export default function App() {
         )}
       </main>
       <Footer />
+      {route !== "music" && <MiniPlayer />}
       <button
         className="floating-search"
         aria-label="搜索作品"
@@ -1335,9 +1374,12 @@ export default function App() {
       >
         <div className="overlay-header">
           <a
-            href="#/"
+            href={sectionNavigation.hrefFor("home")}
             aria-label="李天纯 · 影视游戏渲染师 / TristanLee · Lighting Artist — 返回首页"
-            onClick={() => setOverlay(null)}
+            onClick={(event) => {
+              setOverlay(null);
+              sectionNavigation.navigate(event, "home");
+            }}
           >
             <Brand />
           </a>
@@ -1355,9 +1397,22 @@ export default function App() {
             <nav aria-label="菜单导航">
               {navigation.map((item, i) => (
                 <a
-                  href={`#/${item.id}`}
+                  href={sectionNavigation.hrefFor(item.id)}
                   key={item.id}
-                  onClick={() => setOverlay(null)}
+                  className={
+                    sectionNavigation.activePage === item.id ? "active" : ""
+                  }
+                  aria-current={
+                    sectionNavigation.activePage === item.id
+                      ? sectionNavigation.isHome
+                        ? "location"
+                        : "page"
+                      : undefined
+                  }
+                  onClick={(event) => {
+                    setOverlay(null);
+                    sectionNavigation.navigate(event, item.id);
+                  }}
                 >
                   <small>0{i + 1}</small>
                   <b>{item.en}</b>

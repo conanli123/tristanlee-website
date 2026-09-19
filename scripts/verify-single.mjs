@@ -18,6 +18,24 @@ export function verifySingle(root) {
   );
   assert(match, "Embedded media manifest missing");
   const assets = JSON.parse(match[1]);
+  for (const track of [
+    "district-four",
+    "griphop",
+    "chillin-hard",
+    "rock-hybrid",
+  ]) {
+    const name = `music/${track}.mp3`;
+    assert(
+      !assets[name],
+      "Music should stream separately from the initial HTML",
+    );
+    const published = readFileSync(join(root, "single-file", name));
+    assert(published.length > 100_000, `Music file is empty: ${name}`);
+    assert(
+      published.equals(readFileSync(join(root, "public", name))),
+      `Published music differs: ${name}`,
+    );
+  }
   for (const index of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 14, 11]) {
     const name = `works/lighting/d${index}.webp`;
     assert(assets[name], `Lighting artwork missing: ${name}`);

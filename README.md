@@ -18,6 +18,8 @@ npm run dev
 - 首页：8 个方形作品轮播，鼠标停留在两侧作品上会将其移至中央，支持鼠标拖动、触屏横滑、箭头与圆点切换、自动播放；下方 WORK 与独立作品页默认均显示 Lighting 的放大深度轮播，另有个人名片、动态、视觉札记、联系区和大字页脚。
 - 作品列表、25 个作品详情、分类筛选、中英文关键词搜索。
 - 分类为 Lighting、Mini Theater、Game Demos、Art & Illustration；全部分类同排显示，窄屏可横向滚动。WORK 标题悬停或键盘聚焦时逐字填入不同颜色。
+- 首页滚动与顶部导航、手机菜单联动：HOME、WORK、PROFILE、NEWS、CONTACT 会按当前位置高亮；在首页点击导航滚动到同一区块，保留轮播与分类状态。`#/home?section=work` 等地址支持刷新、前进后退恢复对应位置。独立详情页与 MUSIC、FAQ 仍可直接打开。
+- MUSIC：球场与唱片风格的四首嘻哈/放克歌单，支持播放暂停、随机/顺序切歌、进度、音量及静音；全站悬浮播放器在路由切换时连续播放。首次访问随机选曲并尝试播放，浏览器禁止有声自动播放时等待首次点击/按键或播放按钮；记住主动暂停、静音、音量与随机模式。
 - 本地收藏（localStorage）与公开点赞：星星保存本机收藏，爱心通过 Cloudflare Pages Functions + D1 保存共享点赞数，所有访客可以查看。匿名点赞无需登录。
 - 个人介绍、新闻列表与文章、合作 FAQ、邮箱联系和隐私说明。
 - 桌面、平板和手机布局，手机底部菜单，键盘操作及减少动态效果支持。
@@ -40,6 +42,9 @@ Lighting 的十三件作品采用用户提供的 d1–d11、d13、d14 图片，�
 - `public/animations/flowers/`：按复刻需求本地保存的原站花束图层；来源见该目录 `SOURCES.md`。
 - `src/index.css`：样式、响应式与动效。
 - `src/data/assetUrl.ts`：素材地址解析，兼容开发模式与独立网页。
+- `src/data/music.ts`：音乐标题、作者、时长、来源与播放顺序；`public/music/`：四首 Kevin MacLeod 的 CC BY 4.0 音乐和来源记录。完整曲目仅转码为 128 kbps MP3；MUSIC 页提供署名、曲目来源与授权链接。
+- `src/components/MusicProvider.tsx`：跨页面音频状态、播放策略、偏好存储和进度控制；`MusicPage.tsx` / `music.css`：歌单与悬浮播放器。
+- `src/hooks/useSectionNavigation.ts`：首页区块导航、滚动高亮和历史恢复。
 - `functions/`：公开点赞的 Cloudflare Pages API；`migrations/`：D1 数据库结构迁移。
 - `wrangler.jsonc`：Cloudflare Pages 输出目录与 D1 绑定配置，Wrangler 自动读取此默认文件。
 
@@ -56,7 +61,9 @@ npm run build:single  # 内嵌脚本、样式和作品素材，校验并同步�
 
 开发服务启动后，运行 `npm run test:carousel` 检查深度翻页的画面位置、循环切换、自动播放、收藏点赞同步及桌面/触屏布局。测试默认使用本机 Microsoft Edge；可通过 `PLAYWRIGHT_CHANNEL` 更换浏览器，通过 `PORTFOLIO_TEST_URL` 指定独立网页或部署地址。点赞请求在交互测试中模拟，不写入线上数据库。
 
-`single-file/index.html` 和根目录 `index.html` 是相同的可直接打开的网页。图片和作品内容可离线查看，公开点赞需要运行 API 服务；字体通过 Google Fonts 加载，离线时使用系统字体。详情页面采用 hash 路由，无需服务器路由重写。
+`single-file/index.html` 和根目录 `index.html` 是相同的可直接打开的网页。图片和作品内容可离线查看，公开点赞需要运行 API 服务；字体通过 Google Fonts 加载，离线时使用系统字体。音乐独立按需加载，构建时复制至 `single-file/music/`，移动或分享构建文件时须一并保留该目录；根目录 HTML 从 `public/music/` 读取本地音乐。每次只加载当前曲目，避免把整个歌单内嵌到首屏 HTML。详情页面采用 hash 路由，无需服务器路由重写。
+
+`npx playwright test tests/browser/navigation-music.spec.ts` 验证导航联动、实际音频播放、快进、随机播放、自动播放受限后的恢复、暂停记忆及手机布局。测试地址配置同轮播测试。
 
 ## 本地测试点赞
 

@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readdirSync,
   copyFileSync,
+  cpSync,
 } from "node:fs";
 import { join, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -96,6 +97,10 @@ html = html.replace(
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "index.html"), html);
 copyFileSync(join(root, "_routes.json"), join(outDir, "_routes.json"));
+// Stream the playlist separately; do not force every visitor to load all audio.
+cpSync(join(root, "public", "music"), join(outDir, "music"), {
+  recursive: true,
+});
 verifySingle(root);
 writeFileSync(join(root, "index.html"), html);
 console.log(

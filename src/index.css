@@ -162,7 +162,7 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
 .desktop-nav {
   margin-left: auto;
   display: flex;
-  gap: 19px;
+  gap: 15px;
   align-items: center;
   height: 100%;
   flex-shrink: 0;
@@ -1768,6 +1768,10 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
 .menu-content nav > a > span {
   font-size: 12px;
   margin-left: auto;
+}
+.menu-content nav > a.active {
+  background: var(--accent);
+  padding-inline: 12px;
 }
 .menu-content nav > a > svg {
   width: 23px;
