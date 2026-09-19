@@ -495,6 +495,7 @@ function Works({
   const visible = base.filter(
     (work) => category === "all" || work.group === category,
   );
+  const showLightingCarousel = full && !savedOnly && category === "lighting";
   return (
     <section
       className={`section work-section ${full ? "page-section" : ""}`}
@@ -540,35 +541,36 @@ function Works({
         <p className="work-category-caption" aria-live="polite">
           {categories.find((item) => item.id === category)?.description}
         </p>
-        {full && !savedOnly && category === "lighting" && (
+        {showLightingCarousel ? (
           <LightingShowcase favorites={favorites} toggle={toggle} />
-        )}
-        <div ref={worksRef}>
-          <div className="work-grid">
-            {visible.map((work) => (
-              <WorkCard
-                key={work.id}
-                work={work}
-                favorite={favorites.includes(work.id)}
-                toggle={toggleSaved}
-              />
-            ))}
-          </div>
-          {!visible.length && (
-            <div className="empty-state">
-              <Icon name="star" />
-              <h3>
-                {savedOnly
-                  ? "把喜欢的画面，留在这里。"
-                  : "这个分类暂时没有作品。"}
-              </h3>
-              <p>点击作品旁的星标，即可收藏。</p>
-              <LineLink href="#/work?category=all" zh="浏览全部作品">
-                EXPLORE WORK
-              </LineLink>
+        ) : (
+          <div ref={worksRef}>
+            <div className="work-grid">
+              {visible.map((work) => (
+                <WorkCard
+                  key={work.id}
+                  work={work}
+                  favorite={favorites.includes(work.id)}
+                  toggle={toggleSaved}
+                />
+              ))}
             </div>
-          )}
-        </div>
+            {!visible.length && (
+              <div className="empty-state">
+                <Icon name="star" />
+                <h3>
+                  {savedOnly
+                    ? "把喜欢的画面，留在这里。"
+                    : "这个分类暂时没有作品。"}
+                </h3>
+                <p>点击作品旁的星标，即可收藏。</p>
+                <LineLink href="#/work?category=all" zh="浏览全部作品">
+                  EXPLORE WORK
+                </LineLink>
+              </div>
+            )}
+          </div>
+        )}
         {visible.some((work) => work.isPlaceholder) && (
           <p className="placeholder-note">{site.workNotice}</p>
         )}
@@ -608,6 +610,9 @@ function LightingShowcase({
     <div className="lighting-depth-feature">
       <DepthCarousel
         items={lightingSlides}
+        cardWidth={720}
+        cardHeight={(720 * 320) / 420}
+        spread={180}
         autoplay
         onChange={setActive}
         onSelect={(index) => {

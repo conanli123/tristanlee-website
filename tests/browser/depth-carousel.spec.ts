@@ -1,9 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
+import { works } from "../../src/data/site";
 
 const cards = ".depth-carousel__card";
 const dots = ".depth-carousel__dot";
 const next = ".depth-carousel__arrow--next";
 const previous = ".depth-carousel__arrow--prev";
+const lightingWorks = works.filter((work) => work.group === "lighting");
 
 test.beforeEach(async ({ page }) => {
   // Exercise shared UI state without adding test votes to the public database.
@@ -32,6 +34,7 @@ test.beforeEach(async ({ page }) => {
 async function openLighting(page: Page) {
   await page.goto("#/work", { waitUntil: "domcontentloaded" });
   await expect(page.locator(cards)).toHaveCount(13);
+  await expect(page.locator(".work-grid")).toHaveCount(0);
   await page.locator(".depth-carousel").scrollIntoViewIfNeeded();
   await expect(page.locator(`${cards}.is-active`)).toBeVisible();
 }
@@ -65,13 +68,16 @@ async function expectCentered(page: Page, index: number) {
     "aria-current",
     "true",
   );
-  const title = await page
-    .locator(".work-grid .work-title")
-    .nth(index)
-    .getAttribute("href");
+  const work = lightingWorks[index];
   await expect(
     page.locator(".lighting-depth-caption .work-title"),
-  ).toHaveAttribute("href", title!);
+  ).toHaveAttribute("href", `#/work/${work.id}`);
+  await expect(
+    page.locator(".lighting-depth-caption .work-title"),
+  ).toContainText(work.title);
+  await expect(page.locator(".lighting-depth-caption time")).toHaveText(
+    work.year,
+  );
   expect(
     await card.evaluate((element) => {
       const rect = element.getBoundingClientRect();
@@ -157,9 +163,10 @@ test("drag and wheel navigate without accidental detail clicks or page scrolling
   await openLighting(page);
   await pause(page);
   const box = (await page.locator(`${cards}.is-active`).boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  const startX = box.x + box.width * 0.8;
+  await page.mouse.move(startX, box.y + box.height / 2);
   await page.mouse.down();
-  await page.mouse.move(box.x + box.width / 2 - 240, box.y + box.height / 2, {
+  await page.mouse.move(startX - box.width * 0.55, box.y + box.height / 2, {
     steps: 15,
   });
   await page.mouse.up();
@@ -171,7 +178,7 @@ test("drag and wheel navigate without accidental detail clicks or page scrolling
     active.y + active.height / 2,
   );
   const scroll = await page.evaluate(() => window.scrollY);
-  await page.mouse.wheel(0, 240);
+  await page.mouse.wheel(0, active.width * 0.54);
   await expectCentered(page, 2);
   expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
   await page.locator(`${cards}.is-active`).click();
@@ -193,18 +200,65 @@ test("visible rear card centers before opening and likes/favorites preserve sele
     "aria-pressed",
     "true",
   );
-  await expect(
-    page.locator(".work-grid .work-card").nth(1).locator(".favorite-button"),
-  ).toHaveAttribute("aria-pressed", "true");
   await caption.locator(".like-button").click();
   await expect(caption.locator(".like-button")).toHaveAttribute(
     "aria-pressed",
     "true",
   );
-  await expect(
-    page.locator(".work-grid .work-card").nth(1).locator(".like-button"),
-  ).toHaveAttribute("aria-pressed", "true");
   await expectCentered(page, 1);
+  await page.locator(`${cards}.is-active`).click();
+  await expect(page).toHaveURL(new RegExp(`/work/${lightingWorks[1].id}$`));
+  await expect(
+    page.locator(".detail-actions .favorite-button"),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".detail-actions .like-button")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.locator(".breadcrumb").click();
+  await page
+    .locator(".work-filters button")
+    .filter({ hasText: /^All/ })
+    .click();
+  const gridCard = page.locator(".work-card").filter({
+    has: page.locator(`a.work-title[href="#/work/${lightingWorks[1].id}"]`),
+  });
+  await expect(gridCard.locator(".favorite-button")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(gridCard.locator(".like-button")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+});
+
+test("renamed film title and 2018 date agree in the carousel and detail", async ({
+  page,
+}) => {
+  await openLighting(page);
+  await pause(page);
+  const index = lightingWorks.findIndex(
+    (work) => work.id === "forest-tiger-chase",
+  );
+  await page.locator(dots).nth(index).click();
+  await expectCentered(page, index);
+  const caption = page.locator(".lighting-depth-caption");
+  await expect(caption.locator(".work-title")).toContainText(
+    "小破孩之大状元电影",
+  );
+  await expect(caption.locator(".work-title span")).toHaveText(
+    "XIAO PO HAI: THE TOP SCHOLAR",
+  );
+  await expect(caption.locator("time")).toHaveText("2018");
+  await page.locator(`${cards}.is-active`).click();
+  await expect(page.locator(".detail-heading h1")).toHaveText(
+    "小破孩之大状元电影",
+  );
+  await expect(page.locator(".detail-heading .eyebrow")).toContainText("2018");
+  await expect(page.locator(".detail-heading")).toContainText(
+    "XIAO PO HAI: THE TOP SCHOLAR",
+  );
 });
 
 test("autoplay advances, pauses on hover/focus and resumes after leaving", async ({
@@ -245,7 +299,7 @@ test("autoplay advances, pauses on hover/focus and resumes after leaving", async
   );
 });
 
-for (const width of [320, 390, 1366]) {
+for (const width of [320, 390, 1366, 1440]) {
   test(`responsive layout at ${width}px retains aspect ratio and working controls`, async ({
     page,
   }) => {
@@ -260,12 +314,23 @@ for (const width of [320, 390, 1366]) {
         const rect = element.getBoundingClientRect();
         return {
           ratio: rect.width / rect.height,
+          width: rect.width,
+          carouselWidth: element
+            .closest(".depth-carousel")!
+            .getBoundingClientRect().width,
           left: rect.left,
           right: rect.right,
           overflow: document.documentElement.scrollWidth - innerWidth,
         };
       });
     expect(dimensions.ratio).toBeCloseTo(420 / 320, 3);
+    if (width < 500) {
+      expect(
+        dimensions.width / dimensions.carouselWidth,
+      ).toBeGreaterThanOrEqual(0.75);
+    } else if (width === 1440) {
+      expect(dimensions.width).toBeGreaterThanOrEqual(620);
+    }
     expect(dimensions.left).toBeGreaterThanOrEqual(0);
     expect(dimensions.right).toBeLessThanOrEqual(width);
     expect(dimensions.overflow).toBeLessThanOrEqual(1);
@@ -295,11 +360,10 @@ test("reduced motion keeps manual navigation and disables autoplay", async ({
 test("autoplay suspends offscreen and resumes when the gallery returns", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 360 });
   await openLighting(page);
   await page.mouse.move(5, 110);
-  await page.evaluate(() =>
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" }),
-  );
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   await page.waitForTimeout(4000);
   await expect(page.locator(cards).first()).toHaveAttribute(
     "aria-current",
@@ -329,7 +393,7 @@ test("touch horizontal swipe changes the card while vertical swipe scrolls", asy
     await pause(page);
     const session = await context.newCDPSession(page);
     const box = (await page.locator(`${cards}.is-active`).boundingBox())!;
-    const x = box.x + box.width / 2;
+    const x = box.x + box.width * 0.8;
     const y = box.y + box.height / 2;
     await session.send("Input.dispatchTouchEvent", {
       type: "touchStart",
@@ -338,7 +402,7 @@ test("touch horizontal swipe changes the card while vertical swipe scrolls", asy
     for (let step = 1; step <= 10; step++) {
       await session.send("Input.dispatchTouchEvent", {
         type: "touchMove",
-        touchPoints: [{ x: x - step * 10, y }],
+        touchPoints: [{ x: x - (step / 10) * box.width * 0.55, y }],
       });
     }
     await session.send("Input.dispatchTouchEvent", {

@@ -494,9 +494,9 @@ export const works: Work[] = [
     index: "23",
     category: "影视场景灯光",
     categoryEn: "CINEMATIC LIGHTING",
-    title: "林间追逐",
-    titleEn: "CHASE THROUGH THE GROVE",
-    year: "2021",
+    title: "小破孩之大状元电影",
+    titleEn: "XIAO PO HAI: THE TOP SCHOLAR",
+    year: "2018",
     image: "works/lighting/d13.webp",
     imageAlt:
       "蓝绿色森林中的大虎回头低吼，两个卡通角色一前一后追赶，湿润草地映出环境光。",
@@ -505,7 +505,7 @@ export const works: Work[] = [
     kind: "image",
     group: "lighting",
     description:
-      "蓝绿色森林里，一只大虎弓身回望，两个小小的追逐者分别从左右靠近。湿润草地、远处树影与角色身上的暖色毛发在冷色环境光中形成鲜明的电影感对比。",
+      "《小破孩之大状元》电影的森林场景中，小破孩与伙伴分处老虎两侧，角色的动作与表情形成生动的戏剧瞬间。蓝绿色环境光照亮草地和树影，与角色肤色及虎身的暖色毛发形成鲜明对比。",
     details: [
       "林冠散射的蓝光铺满背景和地面，虎背与角色边缘被柔和轮廓光分离出来。虎身的棕橙色与右侧角色的暖肤色成为画面中最醒目的色彩锚点。",
       "低机位横向构图保留奔跑方向和前后景关系，前景水洼反射出零碎亮斑。薄雾、花草和远处高光让森林空间既有深度，又保持动画场景的清晰阅读。",

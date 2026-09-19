@@ -75,6 +75,7 @@ export default function DepthCarousel({
   const position = useRef(0);
   const focus = useRef(0);
   const scale = useRef(1);
+  const railSpread = useRef(spread);
   const tween = useRef<gsap.core.Tween | null>(null);
   const wheelTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
@@ -115,7 +116,7 @@ export default function DepthCarousel({
         );
         // Do not project fully hidden cards in front of the perspective plane.
         const visualDistance = clamp(distance, -1, visibleCards + 1);
-        card.style.transform = `translate(-50%, -50%) scale(${scale.current}) translateX(${spread * visualDistance}px) translateZ(${-depth * visualDistance}px) rotateY(${tilt * clamp(distance, 0, 1)}deg)`;
+        card.style.transform = `translate(-50%, -50%) scale(${scale.current}) translateX(${railSpread.current * visualDistance}px) translateZ(${-depth * visualDistance}px) rotateY(${tilt * clamp(distance, 0, 1)}deg)`;
         card.style.opacity = String(opacity);
         card.style.visibility = opacity > 0.001 ? "visible" : "hidden";
         card.style.filter = `brightness(${brightness}) blur(${blurPx}px)`;
@@ -186,10 +187,17 @@ export default function DepthCarousel({
     const root = rootRef.current;
     if (!root) return;
     const resize = new ResizeObserver(([entry]) => {
+      railSpread.current = Math.min(spread, entry.contentRect.width * 0.35);
       scale.current = clamp(
-        entry.contentRect.width / (cardWidth + spread * 2 + 120),
-        0.3,
+        (entry.contentRect.width *
+          (entry.contentRect.width <= 700 ? 0.78 : 0.82)) /
+          cardWidth,
+        0.1,
         1,
+      );
+      root.style.setProperty(
+        "--dc-card-height",
+        `${cardHeight * scale.current}px`,
       );
       layout(position.current);
     });
@@ -206,7 +214,7 @@ export default function DepthCarousel({
       resize.disconnect();
       intersection.disconnect();
     };
-  }, [cardWidth, spread, layout]);
+  }, [cardWidth, cardHeight, spread, layout]);
 
   useEffect(() => {
     setFocus(0, false);

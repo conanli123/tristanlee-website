@@ -12,3 +12,7 @@ Local adaptations include TypeScript, Lucide controls, responsive scaling,
 gesture click suppression, reduced motion, offscreen autoplay suspension,
 pause/resume, and portfolio detail navigation. The site retains its existing
 light appearance and uses the owner's local artwork instead of sample photos.
+
+The Lighting gallery now uses a larger 720 x 548.57 card, retaining the original
+21:16 aspect ratio. The spread is 180px on desktop and narrows on small screens
+to keep the rear cards visible. Cards scale to the available width.

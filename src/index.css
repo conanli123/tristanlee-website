@@ -542,14 +542,14 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
   margin-bottom: 30px;
 }
 .lighting-depth-feature {
-  margin: 0 0 54px;
+  margin: 0;
 }
 .lighting-depth-caption {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  width: min(420px, 100%);
+  width: min(720px, 82%);
   margin: 12px auto 0;
 }
 .lighting-depth-caption p {
@@ -566,14 +566,11 @@ a:is(:hover, :focus-visible) > .brand .brand-en {
 }
 .lighting-depth-feature .depth-carousel {
   margin-inline: auto;
-  max-width: 1100px;
+  max-width: 1280px;
 }
 @media (max-width: 700px) {
-  .lighting-depth-feature {
-    margin-bottom: 36px;
-  }
   .lighting-depth-caption {
-    width: min(320px, 100%);
+    width: 100%;
   }
 }
 .work-grid {
